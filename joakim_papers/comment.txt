@@ -1,0 +1,20 @@
+collision-avoidance-for-multiple-agent-systems
+Pros: 	Fairly simple (only 5 pages!)
+		Agents are only locally aware of surroundings
+		No centralized control
+		Each agent can have unique target location
+
+Cons:
+		Perhaps not reflecting typical pedestrian movement very well
+		Performance unknown
+		Not sure if each agent can have preferred velocity
+
+Reciprocal_n-body_Collision_Avoidance
+Pros:	Good performane (1000 agents ~ 16ms in their tests)
+		Each agent has preferred velocity
+		No centralized control
+
+Cons:	Perhaps not reflecting typical pedestrian movement very well
+		Agents are globally aware of surroundings
+		Agents do not have target locations
+
