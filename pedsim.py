@@ -39,8 +39,12 @@ class Agent:
         return np.array([0, 0])
     
     def repulsiveInteractions(self, agents):
-        # TODO: Implement according to paper
-        return np.array([0, 0])
+        sum = np.array([0.0, 0.0]);
+        for agent in agents:
+            if(agent != self):
+                rab = self.position - agent.position
+                sum += rab / np.dot(rab, rab)
+        return sum
     
     def attractionEffects(self, attractors):
         # TODO: Implement according to paper
