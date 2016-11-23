@@ -46,6 +46,11 @@ class Agent:
                 rab = self.position - agent.position
                 sum += rab / np.dot(rab, rab)
         return sum
+
+        # Alternative implementation, possibly easier to speed up with parallelization
+        #rabs = [self.position - agent.position for agent in agents if agent != self]
+        #return sum([rab / np.dot(rab, rab) for rab in rabs])
+
     
     def attractionEffects(self, attractors):
         # TODO: Implement according to paper
