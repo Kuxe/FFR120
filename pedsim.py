@@ -39,6 +39,7 @@ class Agent:
         return np.array([0, 0])
     
     def repulsiveInteractions(self, agents):
+        # Almost Coulomb potential, Q = 1 temporary?
         sum = np.array([0.0, 0.0]);
         for agent in agents:
             if(agent != self):
@@ -77,11 +78,16 @@ class Pedsim:
     plotdirections = None
     plotaccelerations = None
     plotRefreshRate = None
+    useFixedTimeStep = False
+    fixedTimeStep = None
     
     totalDistanceTravelled = 0
     
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate):
-        
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt):
+        if(dt != 0.0):
+            self.useFixedTimeStep = True
+            self.fixedTimeStep = dt
+
         ## Always start by initializing Qt (only once per application)
         self.app = QtGui.QApplication([])
         
@@ -180,8 +186,10 @@ class Pedsim:
                     self.dataCurve.setData(data3[:ptr3])
                             
                     plotTime = time.perf_counter()
-                                    
-            dt = time.perf_counter() - start
+                
+            # If user set dt via the -dt <deltatime> flag, use that. Otherwise use actual delta time as dt.                  
+            dt = self.fixedTimeStep if self.useFixedTimeStep else time.perf_counter() - start
+
             self.agentPlot.setTitle("%.2fms" % round(dt*1000, 2))
             self.dataPlot.setTitle("%.2fm" % self.totalDistanceTravelled)
             
@@ -190,12 +198,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", help="Sets the number of agents", type=int, default=100)
     parser.add_argument("-r", help="Sets the plot refresh rate", type=int, default=16)
+    parser.add_argument("-dt", help="Sets delta time to fixed rate", type=float, default=0.0)
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
     args = parser.parse_args()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r)
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt)
     pedsim.run()
 
 if __name__ == "__main__":
