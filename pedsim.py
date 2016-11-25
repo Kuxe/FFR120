@@ -5,6 +5,7 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui, QtCore
 import warnings
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning) 
+from Boundarymap import *
 
 # Each agent has a position, velocity and preferred velocity
 # The Pedestrian simulator Pedsim initializes several agents.
@@ -90,7 +91,7 @@ class Pedsim:
     
     totalDistanceTravelled = 0
     
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting):
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
         if(dt != 0.0):
             self.useFixedTimeStep = True
             self.fixedTimeStep = dt
@@ -115,6 +116,13 @@ class Pedsim:
         self.agentPlot.setXRange(-1, 1)
         self.agentPlot.setYRange(-1, 1)
         self.agentPlot.setDownsampling(mode='peak')
+        
+        # Create boundaries in AgentPlot
+        self.boundarymap = boundarymap
+        
+        self.agentPlot.plot(boundarymap[boundarymap] ,pen={'color': (255,255,255), 'width': 0.5})
+        
+        
         
         self.dataPlot = pg.PlotWidget()
         self.dataPlot.showGrid(True, True, 0.3)
@@ -143,7 +151,7 @@ class Pedsim:
         
         # TODO: Give agents some reasonable starting values (currently just randomize every member in range [-1, 1])
         self.agents = [Agent(np.random.random(2)*2-1, (np.random.random(2)*2-1), (np.random.random(2)*2-1)) for i in range(numAgents)]
-
+        
             
     def onQuit(self):
         self.terminate = True
@@ -216,10 +224,15 @@ def main():
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
     parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
+    parser.add_argument("--map", help="Sets map", action='store_true', type = int, default = 1 )
     args = parser.parse_args()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting)
+    bMap = Boundarymaps()
+    boundaryMap = bMap.boundaryMap1()
+    
+    
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting, boundaryMap)
     pedsim.run()
 
 if __name__ == "__main__":
