@@ -7,6 +7,7 @@ import warnings
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 from pedsimvisualizer import PedsimVisualizer
 from pedsimstate import PedsimState
+from Boundarymap import *
 
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state
@@ -18,11 +19,11 @@ class Pedsim:
     # This is usefulf for running several simulations in parallel without wasting memory on GUI.
     enablePlotting = None
 
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting):
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
         self.enablePlotting = enablePlotting
         if(self.enablePlotting):
             self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting)
-        self.state = PedsimState(numAgents, dt)
+        self.state = PedsimState(numAgents, dt, boundaryMap)
 
     # Advances the state to next iteration
     def simulate(self, state):
@@ -56,10 +57,15 @@ def main():
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
     parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
+    parser.add_argument("--map", help="Sets map", type = int, default = 1 )
     args = parser.parse_args()
+
+    # Instansiate and run model
+    bMap = Boundarymaps()
+    boundaryMap = bMap.boundaryMap1()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting)
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting, boundaryMap)
     pedsim.run()
 
 if __name__ == "__main__":

@@ -93,6 +93,9 @@ class PedsimVisualizer:
         self.app.processEvents() # Such as moving the window, pressing buttons etc
         # Update plot, 60fps
         if(self.running and self.enablePlotting and (time.perf_counter() - self.plotTime)*1000 > self.plotRefreshRate):
+
+            self.agentPlot.plot(state.boundaryMap[state.boundaryMap] ,pen={'color': (255,255,255), 'width': 0.5})
+
             xs = [agent.position[0] for agent in state.agents]
             ys = [agent.position[1] for agent in state.agents]
             self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=True)

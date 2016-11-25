@@ -10,7 +10,7 @@ from agent import Agent
 # Any PedsimState can be fed to PedsimVisualizer via PedsimVisualizer.visualize(PedsimState)
 class PedsimState:
     agents = []
-    boundaries = None
+    boundaryMap = None
     attractors = None
 
     useFixedTimeStep = False
@@ -18,8 +18,9 @@ class PedsimState:
     dt = None
 
     totalDistanceTravelled = 0
-    def __init__(self, numAgents, dt):
+    def __init__(self, numAgents, dt, boundaryMap):
         self.dt = dt
+        self.boundaryMap = boundaryMap
 
         # TODO: Give agents some reasonable starting values (currently just randomize every member in range [-1, 1])
         self.agents = [Agent(np.random.random(2)*2-1, (np.random.random(2)*2-1), (np.random.random(2)*2-1)) for i in range(numAgents)]
