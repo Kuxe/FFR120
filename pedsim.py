@@ -39,8 +39,18 @@ class Agent:
         return np.array([0, 0])
     
     def repulsiveInteractions(self, agents):
-        # TODO: Implement according to paper
-        return np.array([0, 0])
+        # Almost Coulomb potential, Q = 1 temporary?
+        sum = np.array([0.0, 0.0]);
+        for agent in agents:
+            if(agent != self):
+                rab = self.position - agent.position
+                sum += rab / np.dot(rab, rab)
+        return sum
+
+        # Alternative implementation, possibly easier to speed up with parallelization
+        #rabs = [self.position - agent.position for agent in agents if agent != self]
+        #return sum([rab / np.dot(rab, rab) for rab in rabs])
+
     
     def attractionEffects(self, attractors):
         # TODO: Implement according to paper
@@ -66,6 +76,7 @@ class Pedsim:
     w = None
     runBtn = None
     quitBtn = None
+    togglePlottingBtn = None
     agentPlot = None
     dataPlot = None
     dataCurve = None
@@ -73,11 +84,17 @@ class Pedsim:
     plotdirections = None
     plotaccelerations = None
     plotRefreshRate = None
+    useFixedTimeStep = False
+    fixedTimeStep = None
+    enablePlotting = None
     
     totalDistanceTravelled = 0
     
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate):
-        
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting):
+        if(dt != 0.0):
+            self.useFixedTimeStep = True
+            self.fixedTimeStep = dt
+
         ## Always start by initializing Qt (only once per application)
         self.app = QtGui.QApplication([])
         
@@ -86,10 +103,11 @@ class Pedsim:
         
         ## Create some widgets to be placed inside
         self.runBtn = QtGui.QPushButton('Pause')
-        
         self.quitBtn = QtGui.QPushButton('Quit')
+        self.togglePlottingBtn = QtGui.QPushButton('Disable plotting' if enablePlotting else 'Enable plotting')
         self.quitBtn.clicked.connect(self.onQuit)
         self.runBtn.clicked.connect(self.toggleRunning)
+        self.togglePlottingBtn.clicked.connect(self.togglePlotting)
         
         # Create a PlotWidget which shows position of agents as circles via scatterplotting
         self.agentPlot = pg.PlotWidget()
@@ -111,7 +129,8 @@ class Pedsim:
         
         ## Add widgets to the layout in their proper positions
         self.layout.addWidget(self.runBtn, 0, 0)
-        self.layout.addWidget(self.quitBtn, 1, 0)
+        self.layout.addWidget(self.togglePlottingBtn, 1, 0)
+        self.layout.addWidget(self.quitBtn, 2, 0)
         self.layout.addWidget(self.agentPlot, 0, 1, 1, 1)  # plot goes on right side, spanning 3 rows
         self.layout.addWidget(self.dataPlot, 0, 2, 1, 1)
 
@@ -120,6 +139,7 @@ class Pedsim:
         self.plotdirections = plotdirections
         self.plotaccelerations = plotaccelerations
         self.plotRefreshRate = plotRefreshRate
+        self.enablePlotting = enablePlotting
         
         # TODO: Give agents some reasonable starting values (currently just randomize every member in range [-1, 1])
         self.agents = [Agent(np.random.random(2)*2-1, (np.random.random(2)*2-1), (np.random.random(2)*2-1)) for i in range(numAgents)]
@@ -131,6 +151,10 @@ class Pedsim:
     def toggleRunning(self):
         self.running = not self.running
         self.runBtn.setText("Pause " if self.running else "Run")
+
+    def togglePlotting(self):
+        self.enablePlotting = not self.enablePlotting
+        self.togglePlottingBtn.setText("Disable plotting " if self.enablePlotting else "Enable plotting")
             
     def run(self):
         
@@ -153,7 +177,7 @@ class Pedsim:
                     self.totalDistanceTravelled += dummyvariable
                     
                 # Update plot, 60fps
-                if((time.perf_counter() - plotTime)*1000 > self.plotRefreshRate):
+                if(self.enablePlotting and (time.perf_counter() - plotTime)*1000 > self.plotRefreshRate):
                     xs = [agent.position[0] for agent in self.agents]
                     ys = [agent.position[1] for agent in self.agents]
                     self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=True)
@@ -176,8 +200,10 @@ class Pedsim:
                     self.dataCurve.setData(data3[:ptr3])
                             
                     plotTime = time.perf_counter()
-                                    
-            dt = time.perf_counter() - start
+                
+            # If user set dt via the -dt <deltatime> flag, use that. Otherwise use actual delta time as dt.                  
+            dt = self.fixedTimeStep if self.useFixedTimeStep else time.perf_counter() - start
+
             self.agentPlot.setTitle("%.2fms" % round(dt*1000, 2))
             self.dataPlot.setTitle("%.2fm" % self.totalDistanceTravelled)
             
@@ -186,12 +212,14 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-n", help="Sets the number of agents", type=int, default=100)
     parser.add_argument("-r", help="Sets the plot refresh rate", type=int, default=16)
+    parser.add_argument("-dt", help="Sets delta time to fixed rate", type=float, default=0.0)
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
+    parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
     args = parser.parse_args()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r)
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting)
     pedsim.run()
 
 if __name__ == "__main__":
