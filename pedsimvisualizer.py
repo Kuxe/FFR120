@@ -48,8 +48,8 @@ class PedsimVisualizer:
         # Create a PlotWidget which shows position of agents as circles via scatterplotting
         self.agentPlot = pg.PlotWidget()
         self.agentPlot.showGrid(True, True, 0.3)
-        self.agentPlot.setXRange(-1, 1)
-        self.agentPlot.setYRange(-1, 1)
+        self.agentPlot.setXRange(0, 19)
+        self.agentPlot.setYRange(0, 19)
         self.agentPlot.setDownsampling(mode='peak')
             
         self.dataPlot = pg.PlotWidget()
@@ -93,12 +93,16 @@ class PedsimVisualizer:
         self.app.processEvents() # Such as moving the window, pressing buttons etc
         # Update plot, 60fps
         if(self.running and self.enablePlotting and (time.perf_counter() - self.plotTime)*1000 > self.plotRefreshRate):
-
-            self.agentPlot.plot(state.boundaryMap[state.boundaryMap] ,pen={'color': (255,255,255), 'width': 0.5})
+            
+            x = [i for j in range(len(state.boundaryMap[:,0])) \
+                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[j,i] == True]
+            y = [j for j in range(len(state.boundaryMap[:,0])) \
+                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[j,i] == True]                              
+            self.agentPlot.plot(x, y, pen=None, symbol='s', clear=True)
 
             xs = [agent.position[0] for agent in state.agents]
             ys = [agent.position[1] for agent in state.agents]
-            self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=True)
+            self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=False)
 
             #Dummyvariable could really be a tuple or anything that we want to plot
             self.data3[self.ptr3] = state.totalDistanceTravelled
