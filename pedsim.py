@@ -24,12 +24,12 @@ class Pedsim:
     #Variables to save data from..
     #TODO: Get better variablenames
     time = [0]
-    relativeSpeedChanges = []
-    
+    efficiencyLevels = []
     
     
     def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
         self.enablePlotting = enablePlotting
+        self.numAgents = numAgents
         if(self.enablePlotting):
             self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting)
         self.state = PedsimState(numAgents, dt, boundaryMap)
@@ -71,17 +71,26 @@ class Pedsim:
                 
     def saveDataToFile(self):
         data = {"time":self.time, 
-                "relativeSpeedChanges": self.relativeSpeedChanges}
+                "efficiencyLevels": self.efficiencyLevels}
         #TODO: Better name, currently used for testing only
         pickle.dump(data, open ("savedData.p","wb"))
     
     def saveData(self, state):
-        tmpSpeedVector = []
+        # Saving the mean Efficiency of all agents in all timesteps
+        tmpEfficiencyArray= []
+        
         for agent in state.agents:
-            agentRelativeSpeed = np.linalg.norm(agent.preferredVelocity) / np.linalg.norm(agent.velocity)
-            tmpSpeedVector.append(agentRelativeSpeed)
-        meanSpeed = np.mean(tmpSpeedVector)
-        self.relativeSpeedChanges.append(meanSpeed)
+            efficiencyLevel = np.linalg.norm(agent.preferredVelocity) / np.linalg.norm(agent.velocity)
+            efficiencyLevel = efficiencyLevel/self.numAgents
+            tmpEfficiencyArray.append(efficiencyLevel)
+
+        efficiencyLevel = np.sum(tmpEfficiencyArray)
+        self.efficiencyLevels.append(efficiencyLevel)
+        
+        #TODO: Make a correct calculation of mean Discomfort -> DiscomfortLevel
+        #tmpDiscomfortVector = []
+        #for agent in state.agents:
+        #    agentDiscomfortLevel = np.norm(agent.preferredVelocity)
 
         
 def main():   
