@@ -27,8 +27,17 @@ class Agent:
         return np.random.random(2) * (MAX-MIN) + MIN
     
     def repulsiveEffects(self, boundaries):
-        # TODO: Implement according to 
-        return np.array([0, 0])
+        sum = np.array([0.0, 0.0]);
+        integer_position = np.array([round(self.position[0]), round(self.position[1])])
+        integer_position = self.position
+        x = np.array([i for j in range(len(boundaries[:,0])) \
+                          for i in range(len(boundaries[0,:])) if boundaries[j,i] == True])
+        y = np.array([j for j in range(len(boundaries[:,0])) \
+                          for i in range(len(boundaries[0,:])) if boundaries[j,i] == True])
+        for i in x:
+            rab = integer_position - np.array([x[i],y[i]])
+            sum += rab / np.dot(rab,rab)
+        return sum
     
     def repulsiveInteractions(self, agents):
         # Almost Coulomb potential, Q = 1 temporary?

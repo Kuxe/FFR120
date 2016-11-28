@@ -23,7 +23,7 @@ class PedsimState:
         self.boundaryMap = boundaryMap
 
         # TODO: Give agents some reasonable starting values (currently just randomize every member in range [-1, 1])
-        self.agents = [Agent(np.random.random(2)*2-1, (np.random.random(2)*2-1), (np.random.random(2)*2-1)) for i in range(numAgents)]
+        self.agents = [Agent(np.random.random(2)*(18-1)+1, (np.random.random(2)*2-1), (np.random.random(2)*2-1)) for i in range(numAgents)]
         if(dt != 0.0):
             self.useFixedTimeStep = True
             self.fixedTimeStep = dt
