@@ -29,14 +29,15 @@ class Agent:
     def repulsiveEffects(self, boundaries):
         sum = np.array([0.0, 0.0]);
         integer_position = np.array([round(self.position[0]), round(self.position[1])])
-        integer_position = self.position
         x = np.array([i for j in range(len(boundaries[:,0])) \
-                          for i in range(len(boundaries[0,:])) if boundaries[j,i] == True])
+                          for i in range(len(boundaries[0,:])) if boundaries[len(boundaries[0,:])-1-j,i] == True])
         y = np.array([j for j in range(len(boundaries[:,0])) \
-                          for i in range(len(boundaries[0,:])) if boundaries[j,i] == True])
+                          for i in range(len(boundaries[0,:])) if boundaries[len(boundaries[0,:])-1-j,i] == True])
         for i in x:
-            rab = integer_position - np.array([x[i],y[i]])
-            sum += rab / np.dot(rab,rab)
+            rab = np.array([integer_position[0] - x[i],integer_position[1]-y[i]])
+            if(np.dot(rab,rab) != 0):
+                if(np.dot(rab,rab) < 4):
+                    sum += 10*rab / np.dot(rab,rab) 
         return sum
     
     def repulsiveInteractions(self, agents):
@@ -45,7 +46,7 @@ class Agent:
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
-                sum += rab / np.dot(rab, rab)
+                sum += 0.5*rab / np.dot(rab, rab)
         return sum
 
         # Alternative implementation, possibly easier to speed up with parallelization

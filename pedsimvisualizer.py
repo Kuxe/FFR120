@@ -95,9 +95,9 @@ class PedsimVisualizer:
         if(self.running and self.enablePlotting and (time.perf_counter() - self.plotTime)*1000 > self.plotRefreshRate):
             
             x = [i for j in range(len(state.boundaryMap[:,0])) \
-                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[j,i] == True]
+                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[len(state.boundaryMap[:,0])-1-j,i] == True]
             y = [j for j in range(len(state.boundaryMap[:,0])) \
-                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[j,i] == True]                              
+                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[len(state.boundaryMap[:,0])-1-j,i] == True]                              
             self.agentPlot.plot(x, y, pen=None, symbol='s', clear=True)
 
             xs = [agent.position[0] for agent in state.agents]
