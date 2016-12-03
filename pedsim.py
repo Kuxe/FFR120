@@ -47,27 +47,33 @@ class Pedsim:
     def run(self):
 
         #Generate data for use in each instance of pedsimstate
-        NUM_STATES = 2
+        NUM_STATES = 100
         variances = np.linspace(0, 1, NUM_STATES)
         means = np.linspace(0.1, 3, NUM_STATES)
-        states = [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]
         
-        for state in states:          
+        for state in [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]:          
             # If plotting is enabled, run simulation until user presses quit
             if(self.enablePlotting):
+                self.visualizer.clear()
+                start = time.perf_counter()
                 while not self.visualizer.terminate and state.numAgentsInGoal < self.numAgents:
                     if(self.visualizer.running):
                         self.simulate(state)
                     self.visualizer.visualize(state)
+
+                #TODO: Fix bug where succesive runs of simulation becomes slower and slower
+                print('Total time spent: %.2f' % (time.perf_counter() - start));
                     
             else:
                 # If user passed --disableplotting no window will exist so no quit button
                 # hence let simulation run for 10000 iterations
                 # TODO: Replace with reasonable stop condition (ie all agents reached goal)
+                start = time.perf_counter()
                 while state.numAgentsInGoal < self.numAgents:
                     self.simulate(state)
                     self.saveData(state)
                 self.saveDataToFile(state)
+                print('Total time spent: %.2f' % (time.perf_counter() - start));
         
                 
     def saveDataToFile(self, pedsimState):

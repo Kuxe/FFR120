@@ -126,3 +126,8 @@ class PedsimVisualizer:
 
             self.agentPlot.setTitle("Running time per iteration: %.2fms, num agents in goal: %i" % (round(state.runningTimePerStep*1000, 2), state.numAgentsInGoal))
             self.dataPlot.setTitle("%.2fm" % state.totalDistanceTravelled)
+
+    def clear(self):
+        self.agentPlot.clear()
+        self.dataPlot.clear()
+        self.dataCurve.clear()
