@@ -31,7 +31,7 @@ class Pedsim:
         self.enablePlotting = enablePlotting
         self.numAgents = numAgents
         if(self.enablePlotting):
-            self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting)
+            self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting,boundaryMap)
         self.state = PedsimState(numAgents, dt, boundaryMap)
         
     # Advances the state to next iteration
