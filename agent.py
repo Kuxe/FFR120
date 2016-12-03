@@ -11,7 +11,7 @@ class Agent:
     velocity = np.array([1, 1]);
     acceleration = np.array([0, 0]);
     preferredVelocity = np.array([0, 0]); #v0_alpha * e_alpha, desired speed * direction of destination
-    relaxation = 1.0
+    relaxation = 0.01
     
     def __init__(self, initialPosition, initialVelocity, preferredVelocity):
         self.position = initialPosition
