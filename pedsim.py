@@ -23,6 +23,8 @@ class Pedsim:
     def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
         self.enablePlotting = enablePlotting
         self.numAgents = numAgents
+        self.dt = dt
+        
         if(self.enablePlotting):
             self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting,boundaryMap)
         self.state = PedsimState(numAgents, dt, boundaryMap)
@@ -64,7 +66,7 @@ class Pedsim:
         data = {"time":pedsimState.time, 
                 "efficiencyLevels": pedsimState.efficiencyLevels}
         #TODO: Better name, currently used for testing only
-        pickle.dump(data, open ("savedData.p","wb"))
+        pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimstate.numAgents, pedsimstate.time[-1], pedsimstate.mean,pedsimstate.variance),"wb"))
     
     def saveData(self, state):
         # Saving the mean Efficiency of all agents in all timesteps
@@ -92,7 +94,7 @@ def main():
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
     parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
-    parser.add_argument("--map", help="Sets map", type = int, default = 1 )
+    parser.add_argument("-map", help="Sets map", type = int, default = 1 )
     #paser.add_argument("--savedata", help="Save data from simulation", type=bool, default = false)
     args = parser.parse_args()
 
