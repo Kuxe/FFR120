@@ -32,9 +32,9 @@ class Agent:
         if integer_position[0]>0 and integer_position[0]<len(boundaries[0,:])-1:
             if integer_position[1]>0 and integer_position[1]<len(boundaries[:,0])-1:
                 x = [i for j in range(integer_position[1]-1,integer_position[1]+2) \
-                          for i in range(integer_position[0]-1,integer_position[0]+2) if boundaries[i,len(boundaries[:,0])-1-j] == True]
+                          for i in range(integer_position[0]-1,integer_position[0]+2) if boundaries[len(boundaries[:,0])-1-j, i] == True]
                 y = [j for j in range(integer_position[1]-1,integer_position[1]+2) \
-                          for i in range(integer_position[0]-1,integer_position[0]+2) if boundaries[i,len(boundaries[:,0])-1-j] == True]
+                          for i in range(integer_position[0]-1,integer_position[0]+2) if boundaries[len(boundaries[:,0])-1-j, i] == True]
                 for i in range(0,len(x)):
                     rab = integer_position - np.array([x[i],y[i]])
                     if(np.dot(rab,rab) != 0):

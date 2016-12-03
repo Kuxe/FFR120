@@ -48,8 +48,9 @@ class PedsimVisualizer:
         # Create a PlotWidget which shows position of agents as circles via scatterplotting
         self.agentPlot = pg.PlotWidget()
         self.agentPlot.showGrid(True, True, 0.3)
-        self.agentPlot.setXRange(0,len(boundaryMap[0,:]))
-        self.agentPlot.setYRange(0,len(boundaryMap[:,0]))
+        boundaryMapMaxLen = np.max(np.shape(boundaryMap));
+        self.agentPlot.setXRange(0, boundaryMapMaxLen)
+        self.agentPlot.setYRange(-boundaryMapMaxLen/2, boundaryMapMaxLen/2)
         self.agentPlot.setDownsampling(mode='peak')
             
         self.dataPlot = pg.PlotWidget()

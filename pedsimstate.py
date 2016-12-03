@@ -34,12 +34,17 @@ class PedsimState:
 
         # Initialize agents in boundaryMap, uniformly in two rectangles
 
+        bmshape = np.shape(boundaryMap)
+
         wallXStart = 0
-        wallXEnd = 19
+        wallXEnd = bmshape[1]-1
         wallYStart = 0
-        wallYEnd = 19
+        wallYEnd = bmshape[0]-1
         margin = 1
-        side = 1;
+        side = 1
+
+        print("%i" % wallXEnd)
+        print("%i" % (wallYEnd-margin))
 
         numAgents1 = int(numAgents/2);
         agentsXs = np.random.uniform(wallXStart+margin, wallXStart+margin+side, numAgents1)
