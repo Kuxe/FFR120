@@ -68,7 +68,7 @@ class PedsimVisualizer:
         self.layout.addWidget(self.togglePlottingBtn, 1, 0)
         self.layout.addWidget(self.quitBtn, 2, 0)
         self.layout.addWidget(self.agentPlot, 0, 1, 1, 1)  # plot goes on right side, spanning 3 rows
-        self.layout.addWidget(self.dataPlot, 0, 2, 1, 1)
+        #self.layout.addWidget(self.dataPlot, 0, 2, 1, 1)
 
         self.w.show()
             
@@ -124,5 +124,5 @@ class PedsimVisualizer:
                 for agent in state.agents:
                     self.agentPlot.plot([agent.position[0], agent.position[0] + agent.acceleration[0]/20], [agent.position[1], agent.position[1] + agent.acceleration[1]/20], pen={'color': (241, 100, 64), 'width': 0.5})
 
-            self.agentPlot.setTitle("%.2fms" % round(state.dt*1000, 2))
+            self.agentPlot.setTitle("Running time per iteration: %.2fms" % (round(state.dt*1000, 2)))
             self.dataPlot.setTitle("%.2fm" % state.totalDistanceTravelled)
