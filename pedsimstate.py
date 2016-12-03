@@ -15,7 +15,7 @@ class PedsimState:
 
     useFixedTimeStep = False
     fixedTimeStep = None
-    dt = None
+    dt = None #Time-resolution of simulation
 
     totalDistanceTravelled = 0
     def __init__(self, numAgents, dt, boundaryMap):

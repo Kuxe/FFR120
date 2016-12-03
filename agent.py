@@ -61,7 +61,7 @@ class Agent:
         
     def update(self, state):
         tmpPos = np.copy(self.position);
-        self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors)
+        self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt;
         self.velocity += self.acceleration * state.dt
         self.position += self.velocity * state.dt
         state.totalDistanceTravelled += np.linalg.norm(self.position-tmpPos)

@@ -36,14 +36,14 @@ class Pedsim:
         
     # Advances the state to next iteration
     def simulate(self, state):
+        start = time.perf_counter()
         for agent in state.agents:
-            start = time.perf_counter()
             agent.update(state)
             # If user set dt via the -dt <deltatime> flag, use that. Otherwise use actual delta time as dt.                  
-            if state.useFixedTimeStep:
-                state.dt = state.fixedTimeStep
-            else:
-                state.dt = time.perf_counter() - start
+        if state.useFixedTimeStep:
+            state.dt = state.fixedTimeStep
+        else:
+            state.dt = time.perf_counter() - start
     
             #Only Works properly when Fixed Timesteps            
             self.time.append(self.time[-1] + state.dt)
