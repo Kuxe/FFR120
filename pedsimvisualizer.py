@@ -28,7 +28,7 @@ class PedsimVisualizer:
     terminate = False
     plotTime = time.perf_counter() - time.perf_counter();
 
-    def __init__(self, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting):
+    def __init__(self, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
         self.data3 = np.empty(100)
         self.ptr3 = 0
         ## Always start by initializing Qt (only once per application)
@@ -48,8 +48,8 @@ class PedsimVisualizer:
         # Create a PlotWidget which shows position of agents as circles via scatterplotting
         self.agentPlot = pg.PlotWidget()
         self.agentPlot.showGrid(True, True, 0.3)
-        self.agentPlot.setXRange(0, 19)
-        self.agentPlot.setYRange(0, 19)
+        self.agentPlot.setXRange(0,len(boundaryMap[0,:]))
+        self.agentPlot.setYRange(0,len(boundaryMap[:,0]))
         self.agentPlot.setDownsampling(mode='peak')
             
         self.dataPlot = pg.PlotWidget()
