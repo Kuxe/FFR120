@@ -13,21 +13,22 @@ import pickle
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state
 class Pedsim:
-    state = None
     visualizer = None
 
     # If enablePlotting=False, do not plot at all. Dont even create a window.
     # This is usefulf for running several simulations in parallel without wasting memory on GUI.
     enablePlotting = None
+
+    dt = None
+    boundaryMap = None
     
     def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
         self.enablePlotting = enablePlotting
         self.numAgents = numAgents
         self.dt = dt
-        
+        self.boundaryMap = boundaryMap
         if(self.enablePlotting):
-            self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting,boundaryMap)
-        self.state = PedsimState(numAgents, dt, boundaryMap)
+            self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, self.dt, enablePlotting, self.boundaryMap)
         
     # Advances the state to next iteration
     def simulate(self, state):
@@ -44,22 +45,30 @@ class Pedsim:
         state.time.append(state.time[-1] + state.dt)
 
     def run(self):
-        # If plotting is enabled, run simulation until user presses quit
-        if(self.enablePlotting):
-            while not self.visualizer.terminate:
-                if(self.visualizer.running):
-                    self.simulate(self.state)
-                self.visualizer.visualize(self.state)
-                
-                
-        else:
-            # If user passed --disableplotting no window will exist so no quit button
-            # hence let simulation run for 10000 iterations
-            # TODO: Replace with reasonable stop condition (ie all agents reached goal)
-            while self.state.numAgentsInGoal < self.numAgents:
-                self.simulate(self.state)
-                self.saveData(self.state)
-            self.saveDataToFile(self.state)
+
+        #Generate data for use in each instance of pedsimstate
+        NUM_STATES = 2
+        variances = np.linspace(0, 1, NUM_STATES)
+        means = np.linspace(0.1, 3, NUM_STATES)
+        states = [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[i], variances[i]) for i in range(NUM_STATES)]
+        
+        for state in states:
+          
+            # If plotting is enabled, run simulation until user presses quit
+            if(self.enablePlotting):
+                while not self.visualizer.terminate:
+                    if(self.visualizer.running):
+                        self.simulate(state)
+                    self.visualizer.visualize(state)
+                    
+            else:
+                # If user passed --disableplotting no window will exist so no quit button
+                # hence let simulation run for 10000 iterations
+                # TODO: Replace with reasonable stop condition (ie all agents reached goal)
+                while state.numAgentsInGoal < self.numAgents:
+                    self.simulate(state)
+                    self.saveData(state)
+                self.saveDataToFile(state)
         
                 
     def saveDataToFile(self, pedsimState):

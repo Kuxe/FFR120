@@ -31,7 +31,7 @@ class PedsimState:
     efficiencyLevels = []
 
     totalDistanceTravelled = 0
-    def __init__(self, numAgents, dt, boundaryMap):
+    def __init__(self, numAgents, dt, boundaryMap, mean, variance):
         self.dt = dt
         self.boundaryMap = boundaryMap
 
@@ -58,9 +58,6 @@ class PedsimState:
 
         self.goalLineRight = wallXEnd-margin-side
         self.goalLineLeft = wallXStart+margin+side
-
-        print("%i" % wallXEnd)
-        print("%i" % (wallYEnd-margin))
 
         numAgents1 = int(numAgents/2);
         agentsXs = np.random.uniform(wallXStart+margin, wallXStart+margin+side, numAgents1)
