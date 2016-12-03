@@ -16,6 +16,12 @@ class PedsimState:
     useFixedTimeStep = False
     fixedTimeStep = None
     dt = None #Time-resolution of simulation
+    runningTimePerStep = None #How many milliseconds spend per call to simulate
+
+    #Variables to save data from..
+    #TODO: Get better variablenames
+    time = [0]
+    efficiencyLevels = []
 
     totalDistanceTravelled = 0
     def __init__(self, numAgents, dt, boundaryMap):

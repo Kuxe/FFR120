@@ -125,5 +125,5 @@ class PedsimVisualizer:
                 for agent in state.agents:
                     self.agentPlot.plot([agent.position[0], agent.position[0] + agent.acceleration[0]/20], [agent.position[1], agent.position[1] + agent.acceleration[1]/20], pen={'color': (241, 100, 64), 'width': 0.5})
 
-            self.agentPlot.setTitle("Running time per iteration: %.2fms" % (round(state.dt*1000, 2)))
+            self.agentPlot.setTitle("Running time per iteration: %.2fms" % (round(state.runningTimePerStep*1000, 2)))
             self.dataPlot.setTitle("%.2fm" % state.totalDistanceTravelled)

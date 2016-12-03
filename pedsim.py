@@ -19,13 +19,6 @@ class Pedsim:
     # If enablePlotting=False, do not plot at all. Dont even create a window.
     # This is usefulf for running several simulations in parallel without wasting memory on GUI.
     enablePlotting = None
-
-    
-    #Variables to save data from..
-    #TODO: Get better variablenames
-    time = [0]
-    efficiencyLevels = []
-    
     
     def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
         self.enablePlotting = enablePlotting
@@ -44,9 +37,9 @@ class Pedsim:
             state.dt = state.fixedTimeStep
         else:
             state.dt = time.perf_counter() - start
-    
-            #Only Works properly when Fixed Timesteps            
-            self.time.append(self.time[-1] + state.dt)
+
+        state.runningTimePerStep = time.perf_counter() - start
+        state.time.append(state.time[-1] + state.dt)
 
     def run(self):
         # If plotting is enabled, run simulation until user presses quit
@@ -66,12 +59,12 @@ class Pedsim:
                 self.simulate(self.state)
                 self.saveData(self.state)
                 agentsStillInProgress += 1
-            self.saveDataToFile()
+            self.saveDataToFile(self.state)
         
                 
-    def saveDataToFile(self):
-        data = {"time":self.time, 
-                "efficiencyLevels": self.efficiencyLevels}
+    def saveDataToFile(self, pedsimState):
+        data = {"time":pedsimState.time, 
+                "efficiencyLevels": pedsimState.efficiencyLevels}
         #TODO: Better name, currently used for testing only
         pickle.dump(data, open ("savedData.p","wb"))
     
@@ -85,7 +78,7 @@ class Pedsim:
             tmpEfficiencyArray.append(efficiencyLevel)
 
         efficiencyLevel = np.sum(tmpEfficiencyArray)
-        self.efficiencyLevels.append(efficiencyLevel)
+        state.efficiencyLevels.append(efficiencyLevel)
         
         #TODO: Make a correct calculation of mean Discomfort -> DiscomfortLevel
         #tmpDiscomfortVector = []
