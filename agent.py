@@ -34,8 +34,9 @@ class Agent:
                           for i in range(integer_position[0]-1,integer_position[0]+2) if boundaries[len(boundaries[:,0])-1-j, i] == True]
                 for i in range(0,len(x)):
                     rab = integer_position - np.array([x[i],y[i]])
-                    if(np.dot(rab,rab) != 0):
-                        sum += (rab / np.dot(rab,rab))
+                    if(np.dot(rab,rab) < 0.80):
+                        if(np.dot(rab,rab) != 0):
+                            sum += 100*rab / np.dot(rab,rab) 
         return sum
 
     def repulsiveEffects(self, boundaries):
@@ -56,7 +57,10 @@ class Agent:
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
-                sum += 1.1*(rab / np.dot(rab,rab))
+                #DO NOT REMOVE sum += 1.1*(rab / np.dot(rab,rab)) From merge conflict
+                if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) >= 3*np.pi/4:
+                    if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) <= 5*np.pi/4:
+                        sum += rab / np.dot(rab,rab)
         return sum
 
         # Alternative implementation, possibly easier to speed up with parallelization
