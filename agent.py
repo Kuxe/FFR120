@@ -17,13 +17,13 @@ class Agent:
         
     # Behavioral force f_alpha(t) is the acceleration plus a fluctuation term
     def behavioral(self, agents, boundaries, attractors):
-        return 1/self.relaxation * (self.preferredVelocity - self.velocity) + self.repulsiveEffects(boundaries) + self.repulsiveInteractions(agents) + self.attractionEffects(attractors) + self.fluctuation()
+        return (1.0/self.relaxation) * (self.preferredVelocity - self.velocity) + self.repulsiveEffects(boundaries) + self.repulsiveInteractions(agents) + self.attractionEffects(attractors) + self.fluctuation()
     
     def fluctuation(self):
         MAX = 1; MIN = -1
         return np.random.random(2) * (MAX-MIN) + MIN
     
-    def repulsiveEffects(self, boundaries):
+    def oldrepulsiveEffects(self, boundaries):
         sum = np.array([0.0, 0.0]);
         integer_position = np.array([int(round(self.position[0])), int(round(self.position[1]))])
         if integer_position[0]>0 and integer_position[0]<len(boundaries[0,:])-1:
@@ -35,8 +35,20 @@ class Agent:
                 for i in range(0,len(x)):
                     rab = integer_position - np.array([x[i],y[i]])
                     if(np.dot(rab,rab) != 0):
-                        sum += 100*rab / np.dot(rab,rab) 
+                        sum += (rab / np.dot(rab,rab))
         return sum
+
+    def repulsiveEffects(self, boundaries):
+        s = np.shape(boundaries)
+        upperBound = s[0]-1
+        lowerBound = 0
+        distanceToLower = abs(self.position[1] - lowerBound)
+        distanceToHigher = abs(self.position[1] - upperBound)
+
+        if distanceToLower < distanceToHigher:
+            return np.array([0.0, 1.0]) * np.exp(0.7/distanceToLower) - 1
+        return np.array([0.0, -1.0]) * np.exp(0.7/distanceToHigher) - 1
+
     
     def repulsiveInteractions(self, agents):
         # Almost Coulomb potential, Q = 1 temporary?
@@ -44,7 +56,7 @@ class Agent:
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
-                sum += rab / np.dot(rab,rab)
+                sum += 1.1*(rab / np.dot(rab,rab))
         return sum
 
         # Alternative implementation, possibly easier to speed up with parallelization
