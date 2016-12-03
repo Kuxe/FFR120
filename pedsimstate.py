@@ -18,6 +18,13 @@ class PedsimState:
     dt = None #Time-resolution of simulation
     runningTimePerStep = None #How many milliseconds spend per call to simulate
 
+    goalLeft = None
+    goalRight = None
+
+    numAgentsInGoal = 0
+    goalLineLeft = None
+    goalLineRight = None
+
     #Variables to save data from..
     #TODO: Get better variablenames
     time = [0]
@@ -49,6 +56,9 @@ class PedsimState:
         margin = 1
         side = 1
 
+        self.goalLineRight = wallXEnd-margin-side
+        self.goalLineLeft = wallXStart+margin+side
+
         print("%i" % wallXEnd)
         print("%i" % (wallYEnd-margin))
 
@@ -56,13 +66,13 @@ class PedsimState:
         agentsXs = np.random.uniform(wallXStart+margin, wallXStart+margin+side, numAgents1)
         agentsYs = np.random.uniform(wallYStart+margin, wallYEnd-margin, numAgents1)
         for i in range(numAgents1):
-            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.array([1.0, 0.0]), np.array([1.0, 0.0])))
+            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.array([1.0, 0.0]), np.array([1.0, 0.0]), 0))
 
         numAgents2 = numAgents-int((numAgents/2))
         agentsXs = np.random.uniform(wallXEnd-margin-side, wallXEnd-margin, numAgents2)
         agentsYs = np.random.uniform(wallYStart+margin, wallYEnd-margin, numAgents2)
         for i in range(numAgents2):
-            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.array([-1.0, 0.0]), np.array([-1.0, 0.0])))
+            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.array([-1.0, 0.0]), np.array([-1.0, 0.0]), 1))
 
         if(dt != 0.0):
             self.useFixedTimeStep = True

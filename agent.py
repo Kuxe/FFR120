@@ -12,11 +12,14 @@ class Agent:
     acceleration = np.array([0, 0]);
     preferredVelocity = np.array([0, 0]); #v0_alpha * e_alpha, desired speed * direction of destination
     relaxation = 0.01
+    agentGroup = None;
+    inGoal = False
     
-    def __init__(self, initialPosition, initialVelocity, preferredVelocity):
+    def __init__(self, initialPosition, initialVelocity, preferredVelocity, agentGroup):
         self.position = initialPosition
         self.velocity = initialVelocity
         self.preferredVelocity = preferredVelocity
+        self.agentGroup = agentGroup
         
     # Behavioral force f_alpha(t) is the acceleration plus a fluctuation term
     def behavioral(self, agents, boundaries, attractors):
@@ -65,3 +68,17 @@ class Agent:
         self.velocity += self.acceleration * state.dt
         self.position += self.velocity * state.dt
         state.totalDistanceTravelled += np.linalg.norm(self.position-tmpPos)
+
+        # Check if agents reached goal
+        state.numAgentsInGoal += self.goal(state)
+
+    # Method that returns 1 (true) if agent is at other side of goal line, otherwise 0 (false)
+    def goal(self, state):
+        if(not self.inGoal):
+            if(self.agentGroup == 0):
+                self.inGoal = self.position[0] > state.goalLineRight
+                return self.inGoal
+            else:
+                self.inGoal = self.position[0] < state.goalLineLeft
+                return self.inGoal
+        return 0

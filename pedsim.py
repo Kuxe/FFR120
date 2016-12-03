@@ -54,11 +54,9 @@ class Pedsim:
             # If user passed --disableplotting no window will exist so no quit button
             # hence let simulation run for 10000 iterations
             # TODO: Replace with reasonable stop condition (ie all agents reached goal)
-            agentsStillInProgress = 0
-            while agentsStillInProgress < 100:
+            while self.state.numAgentsInGoal < self.numAgents:
                 self.simulate(self.state)
                 self.saveData(self.state)
-                agentsStillInProgress += 1
             self.saveDataToFile(self.state)
         
                 
