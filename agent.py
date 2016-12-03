@@ -5,21 +5,15 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 # An agent which given a list of agents is capable of
 # updating its position, velocity and acceleration
-class Agent:
-
-    position = np.array([0, 0]);
-    velocity = np.array([1, 1]);
-    acceleration = np.array([0, 0]);
-    preferredVelocity = np.array([0, 0]); #v0_alpha * e_alpha, desired speed * direction of destination
-    relaxation = 0.01
-    agentGroup = None;
-    inGoal = False
-    
+class Agent:    
     def __init__(self, initialPosition, initialVelocity, preferredVelocity, agentGroup):
         self.position = initialPosition
         self.velocity = initialVelocity
+        self.acceleration = np.array([0, 0])
         self.preferredVelocity = preferredVelocity
+        self.relaxation = 0.01
         self.agentGroup = agentGroup
+        self.inGoal = False
         
     # Behavioral force f_alpha(t) is the acceleration plus a fluctuation term
     def behavioral(self, agents, boundaries, attractors):
