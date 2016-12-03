@@ -8,27 +8,27 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
 # Class which visualizes a PedsimState using the python library pyqtgraph
 class PedsimVisualizer:
-    app = None
-    w = None
-    runBtn = None
-    quitBtn = None
-    togglePlottingBtn = None
-    agentPlot = None
-    dataPlot = None
-    dataCurve = None
-    layout = None
-    plotdirections = None
-    plotaccelerations = None
-    plotRefreshRate = None
-    enablePlotting = None
-    data3 = None
-    ptr = None
-    running = True
-
-    terminate = False
-    plotTime = time.perf_counter() - time.perf_counter();
-
     def __init__(self, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
+        self.app = None
+        self.w = None
+        self.runBtn = None
+        self.quitBtn = None
+        self.togglePlottingBtn = None
+        self.agentPlot = None
+        self.dataPlot = None
+        self.dataCurve = None
+        self.layout = None
+        self.plotdirections = None
+        self.plotaccelerations = None
+        self.plotRefreshRate = None
+        self.enablePlotting = None
+        self.data3 = None
+        self.ptr = None
+        self.running = True
+
+        self.terminate = False
+        self.plotTime = time.perf_counter() - time.perf_counter();
+
         self.data3 = np.empty(100)
         self.ptr3 = 0
         ## Always start by initializing Qt (only once per application)
@@ -90,7 +90,6 @@ class PedsimVisualizer:
         self.togglePlottingBtn.setText("Disable plotting " if self.enablePlotting else "Enable plotting")
 
     def visualize(self, state):
-
         self.app.processEvents() # Such as moving the window, pressing buttons etc
         # Update plot, 60fps
         if(self.running and self.enablePlotting and (time.perf_counter() - self.plotTime)*1000 > self.plotRefreshRate):

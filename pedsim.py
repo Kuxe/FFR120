@@ -12,17 +12,17 @@ import pickle
 
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state
-class Pedsim:
-    visualizer = None
-
-    # If enablePlotting=False, do not plot at all. Dont even create a window.
-    # This is usefulf for running several simulations in parallel without wasting memory on GUI.
-    enablePlotting = None
-
-    dt = None
-    boundaryMap = None
-    
+class Pedsim:   
     def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
+        self.visualizer = None
+
+        # If enablePlotting=False, do not plot at all. Dont even create a window.
+        # This is usefulf for running several simulations in parallel without wasting memory on GUI.
+        self.enablePlotting = None
+
+        self.dt = None
+        self.boundaryMap = None
+        self.numAgents = None
         self.enablePlotting = enablePlotting
         self.numAgents = numAgents
         self.dt = dt
@@ -50,13 +50,12 @@ class Pedsim:
         NUM_STATES = 2
         variances = np.linspace(0, 1, NUM_STATES)
         means = np.linspace(0.1, 3, NUM_STATES)
-        states = [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[i], variances[i]) for i in range(NUM_STATES)]
+        states = [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]
         
-        for state in states:
-          
+        for state in states:          
             # If plotting is enabled, run simulation until user presses quit
             if(self.enablePlotting):
-                while not self.visualizer.terminate:
+                while not self.visualizer.terminate and state.numAgentsInGoal < self.numAgents:
                     if(self.visualizer.running):
                         self.simulate(state)
                     self.visualizer.visualize(state)
@@ -75,7 +74,7 @@ class Pedsim:
         data = {"time":pedsimState.time, 
                 "efficiencyLevels": pedsimState.efficiencyLevels}
         #TODO: Better name, currently used for testing only
-        pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimstate.numAgents, pedsimstate.time[-1], pedsimstate.mean,pedsimstate.variance),"wb"))
+        pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimState.numAgents, pedsimState.time[-1], pedsimState.mean,pedsimState.variance),"wb"))
     
     def saveData(self, state):
         # Saving the mean Efficiency of all agents in all timesteps
