@@ -54,13 +54,19 @@ class Agent:
     def repulsiveInteractions(self, agents):
         # Almost Coulomb potential, Q = 1 temporary?
         sum = np.array([0.0, 0.0]);
+        rmin = 1000
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
+                if np.linalg.norm(rab) < rmin:    
+                    vab = self.velocity - agent.velocity
+                    sum = 10*(1-np.dot(self.velocity,agent.velocity)/(np.linalg.norm(agent.velocity)*np.linalg.norm(self.velocity)))*(rab)/np.dot(rab,rab)
+                    rmin = np.linalg.norm(rab)
                 #DO NOT REMOVE sum += 1.1*(rab / np.dot(rab,rab)) From merge conflict
-                if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) >= 3*np.pi/4:
-                    if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) <= 5*np.pi/4:
-                        sum += rab / np.dot(rab,rab)
+                #if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) >= 3*np.pi/4:
+                #   if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) <= 5*np.pi/4:
+                #        sum += rab / np.dot(rab,rab)
+                #sum += (1-np.dot(self.velocity,agent.velocity)/(np.linalg.norm(agent.velocity)*np.linalg.norm(self.velocity)))*rab/np.dot(rab,rab);
         return sum
 
         # Alternative implementation, possibly easier to speed up with parallelization
