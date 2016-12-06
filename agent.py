@@ -64,12 +64,10 @@ class Agent:
         tmpPos = np.copy(self.position)
         self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt
         self.velocity += self.acceleration * state.dt
-        if(self.agentGroup == 0):
-            if(self.velocity[0] < 0):
-                self.velocity[0] = 0
-        if(self.agentGroup == 1):
-            if(self.velocity[0] > 0):
-                self.velocity[0] = 0
+        if(self.agentGroup == 0 and (self.velocity[0] < 0)):
+            self.velocity[0] = 0.01
+        if(self.agentGroup == 1 and (self.velocity[0] > 0)):
+            self.velocity[0] = 0.01
         self.position += self.velocity * state.dt
 
         # Check if agents reached goal
