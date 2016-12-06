@@ -50,8 +50,8 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
         NUM_STATES = 100
-        variances = np.linspace(0.2, 0.2, NUM_STATES)
-        means = np.linspace(0.5, 0.5, NUM_STATES)
+        variances = np.linspace(0.1, 1, NUM_STATES)
+        means = np.linspace(0.5, 2.5, NUM_STATES)
         
         for state in [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]:          
             # If plotting is enabled, run simulation until user presses quit

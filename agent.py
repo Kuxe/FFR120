@@ -6,19 +6,21 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 # An agent which given a list of agents is capable of
 # updating its position, velocity and acceleration
 class Agent:    
-    def __init__(self, initialPosition, initialVelocity, preferredVelocity, agentGroup):
+    def __init__(self, initialPosition, preferredVelocity, agentGroup):
         self.position = initialPosition
         self.position0 = np.copy(self.position)
-        self.velocity = initialVelocity
-        self.acceleration = np.array([0, 0])
         self.preferredVelocity = preferredVelocity
+        self.velocity = np.copy(self.preferredVelocity)
+        self.acceleration = np.array([0, 0])
         self.relaxation = 0.02
         self.agentGroup = agentGroup
         self.inGoal = False
         
     # Behavioral force f_alpha(t) is the acceleration plus a fluctuation term
     def behavioral(self, agents, boundaries, attractors):
-        return (1.0/self.relaxation) * (self.preferredVelocity - self.velocity) + self.repulsiveEffects(boundaries) + self.repulsiveInteractions(agents) + self.attractionEffects(attractors) + self.fluctuation()
+        return (1.0/self.relaxation) * (self.preferredVelocity - self.velocity) + \
+        self.repulsiveEffects(boundaries) + self.repulsiveInteractions(agents) + \
+        self.attractionEffects(attractors) + self.fluctuation()
     
     def fluctuation(self):
         MAX = 1; MIN = -1
@@ -48,8 +50,8 @@ class Agent:
         distanceToHigher = abs(self.position[1] - upperBound)
 
         if distanceToLower < distanceToHigher:
-            return np.array([0.0, 1.0]) * np.exp(0.7/distanceToLower) - 1
-        return np.array([0.0, -1.0]) * np.exp(0.7/distanceToHigher) - 1
+            return np.array([0.0, 1.0]) * (np.exp(0.7/distanceToLower) - 1)
+        return np.array([0.0, -1.0]) * (np.exp(0.7/distanceToHigher) - 1)
 
     
     def repulsiveInteractions(self, agents):
@@ -58,7 +60,7 @@ class Agent:
         sum2 = np.array([0.0, 0.0]);
         sum = np.array([0.0, 0.0]);
         rmin1 = 1
-        rmin2 = 1
+        rmin2 = 1.5
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
@@ -94,6 +96,12 @@ class Agent:
         tmpPos = np.copy(self.position)
         self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt
         self.velocity += self.acceleration * state.dt
+        if(self.agentGroup == 0):
+            if(self.velocity[0] < 0):
+                self.velocity[0] = 0
+        if(self.agentGroup == 1):
+            if(self.velocity[0] > 0):
+                self.velocity[0] = 0
         self.position += self.velocity * state.dt
         state.totalDistanceTravelled += np.linalg.norm(self.position-tmpPos)
 
@@ -102,7 +110,7 @@ class Agent:
             self.goal(state)
             if(self.inGoal):
                 self.position[0] = self.position0[0]
-                self.velocity = self.preferredVelocity
+                #self.velocity = self.preferredVelocity
                 #self.position[1] = np.random.uniform(1,6)
                 self.inGoal = False
         else:
