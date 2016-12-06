@@ -42,7 +42,6 @@ class Agent:
         # Almost Coulomb potential, Q = 1 temporary?
         sum1 = np.array([0.0, 0.0]);
         sum2 = np.array([0.0, 0.0]);
-        sum = np.array([0.0, 0.0]);
         rmin1 = 1**2 #Because comparison done with squared euclidean distance as opposed to euclidean distance (dot faster than norm)
         rmin2 = 1.5**2
         COULUMB_SCALAR1 = 5
@@ -50,15 +49,14 @@ class Agent:
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
-                if self.agentGroup == agent.agentGroup:
-                    if np.dot(rab, rab) < rmin1:
-                        sum1 += COULUMB_SCALAR1*(rab)/np.dot(rab,rab)
-                        #rmin1 = np.linalg.norm(rab)
-                if self.agentGroup != agent.agentGroup:
-                    if np.dot(rab, rab) < rmin2:
-                        sum2 += COULUMB_SCALAR2*(rab)/np.dot(rab,rab)
-                        #rmin2 = np.linalg.norm(rab)
-        return sum1 + sum2
+                rabdot = np.dot(rab, rab)
+                rabquota = rab/rabdot
+                sameGroup = self.agentGroup == agent.agentGroup
+                if sameGroup and (rabdot < rmin1):
+                    sum1 += rabquota
+                if not sameGroup and (rabdot < rmin2):
+                    sum2 += rabquota
+        return COULUMB_SCALAR1*sum1 + COULUMB_SCALAR2*sum2
         
     def update(self, state, pedsim):
         tmpPos = np.copy(self.position)
