@@ -34,7 +34,7 @@ class PedsimState:
 
         #Variables to save data from..
         #TODO: Get better variablenames
-        self.time = [0]
+        self.nTimesteps = 0.0
         self.efficiencyLevels = []
         self.discomfortLevels = []
 

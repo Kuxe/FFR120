@@ -47,49 +47,81 @@ class Pedsim:
             state.dt = time.perf_counter() - start
 
         state.runningTimePerStep = time.perf_counter() - start
-        state.time.append(state.time[-1] + state.dt)
+        state.nTimesteps +=1
 
     def run(self):
 
         #Generate data for use in each instance of pedsimstate
-        NUM_STATES = 10
-        AVG_NUM_GOALS_PER_AGENT = 10; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
-        variances = np.linspace(0.1, 1, NUM_STATES)
-        means = np.linspace(0.5, 2.5, NUM_STATES)
+
+        NUM_MEANS = 20
+        NUM_VARIANCES = 20
+        AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
+        NUMBER_OF_MEANS = 20
         
-        for state in [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]:          
+        variances = np.linspace(0.1, 0.6, NUM_MEANS)
+        means = np.linspace(0.8, 1.8, NUM_VARIANCES)
+        efficiencies =  []
+
+        allMeans = []
+        allVariances = []
+        lastTime = 0        
+        counter = 0
+        
+        pedsimStates = []
+        for i in range(len(means)):
+            for j in range(len(variances)):
+                pedsimStates.append(PedsimState(self.numAgents, self.dt, self.boundaryMap, means[i], variances[j]))
+                                
+        numRuns = 0;          
+        for state in pedsimStates:          
             # If plotting is enabled, run simulation until user presses quit
-            if(self.enablePlotting):
-                self.visualizer.clear()
-                start = time.perf_counter()
-                while not self.visualizer.terminate and state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
-                    if(self.visualizer.running):
+            # TODO MASSIVE BUG MAY HAPPEN HERE
+            tmpEfficiencies = []
+            tmpDiscomforts = []
+            for i in range(NUMBER_OF_MEANS):
+                state.__init__(self.numAgents, self.dt, self.boundaryMap, state.mean, state.variance)
+                if(self.enablePlotting):
+                    self.visualizer.clear()
+                    start = time.perf_counter()
+                    while not self.visualizer.terminate and state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents* AVG_NUM_GOALS_PER_AGENT):
+                        if(self.visualizer.running):
+                            self.simulate(state)
+                            self.saveRunData(state)
+                        self.visualizer.visualize(state)            
+                else:
+                    # If user passed --disableplotting no window will exist so no quit button
+                    start = time.perf_counter()
+                    while state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                         self.simulate(state)
-                    self.visualizer.visualize(state)
-                print('Total time spent: %.2f' % (time.perf_counter() - start));
-                    
-            else:
-                # If user passed --disableplotting no window will exist so no quit button
-                start = time.perf_counter()
-                while state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
-                    self.simulate(state)
-                    self.saveData(state)
-                self.saveEfficiency(state)
-                self.saveDiscomfort(state)
-                self.saveDataToFile(state)
-                print('Total time spent: %.2f' % (time.perf_counter() - start));
-                print(state.efficiencyLevels);
-                print(state.discomfortLevels);
+                        self.saveRunData(state)
+                efficiency = self.saveData(state)
+                print('%.2f percentage, Efficiency: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency))
+                numRuns += 1
+                tmpEfficiencies.append(efficiency)
+            print('Total time spent: %.2f' % (time.perf_counter() - start),'  Approx time left: %.1f' %((lastTime + (time.perf_counter() - start)*(len(pedsimStates)-counter))/2.0))
+            lastTime = (time.perf_counter() - start)*len(pedsimStates)
+            efficiencies.append(np.mean(tmpEfficiencies))
+            allMeans.append(state.mean)
+            allVariances.append(state.variance)
+            counter += 1
+            
+        print(np.shape(means),np.shape(variances),np.shape(efficiencies))
+        self.saveDataToFile(allMeans,allVariances,efficiencies)
         
-                
-    def saveDataToFile(self, pedsimState):
-        data = {"time":pedsimState.time, 
-                "efficiencyLevels": pedsimState.efficiencyLevels}
-        #TODO: Better name, currently used for testing only
-        # pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimState.numAgents, pedsimState.time[-1], pedsimState.mean,pedsimState.variance),"wb"))
+    def saveRunData(self, state):
+        for agent in state.agents:
+            agent.cumSpeed += np.linalg.norm(agent.velocity)
+            
+    def saveData(self, state):
+        efficiency = 0
+        for agent in state.agents:
+            efficiency += (agent.cumSpeed/state.nTimesteps) *(1.0/ np.linalg.norm(agent.preferredVelocity))
+        return efficiency/self.numAgents
+        
+    def saveDataToFile(self,means, variances, efficiencies):
+        np.savetxt('text.txt',np.c_[means,variances,efficiencies])
     
     def saveEfficiency(self, state):
-        # Saving the mean Efficiency of all agents in all timesteps
         tmpEfficiencyArray= []
         
         for agent in state.agents:
@@ -102,7 +134,7 @@ class Pedsim:
             efficiencyLevel = averageVelocity /np.linalg.norm(agent.preferredVelocity)
             efficiencyLevel = efficiencyLevel/self.numAgents
             tmpEfficiencyArray.append(efficiencyLevel)
-
+    
         efficiencyLevel = np.sum(tmpEfficiencyArray)
         state.efficiencyLevels.append(efficiencyLevel)
         

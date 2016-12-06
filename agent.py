@@ -17,6 +17,8 @@ class Agent:
         self.inGoal = False
         self.velocityInTimeX = []
         self.velocityInTimeY = []
+        self.cumSpeed = 0
+        self.preferredSpeed = np.linalg.norm(self.preferredVelocity)
         
     # Behavioral force f_alpha(t) is the acceleration plus a fluctuation term
     def behavioral(self, agents, boundaries, attractors):
@@ -34,7 +36,7 @@ class Agent:
         lowerBound = 0
         distanceToLower = abs(self.position[1] - lowerBound)
         distanceToHigher = abs(self.position[1] - upperBound)
-
+        
         if distanceToLower < distanceToHigher:
             return np.array([0.0, 1.0]) * (np.exp(0.7/distanceToLower) - 1)
         return np.array([0.0, -1.0]) * (np.exp(0.7/distanceToHigher) - 1)
@@ -44,7 +46,6 @@ class Agent:
         # Almost Coulomb potential, Q = 1 temporary?
         sum1 = np.array([0.0, 0.0]);
         sum2 = np.array([0.0, 0.0]);
-        sum = np.array([0.0, 0.0]);
         rmin1 = 1**2 #Because comparison done with squared euclidean distance as opposed to euclidean distance (dot faster than norm)
         rmin2 = 1.5**2
         COULUMB_SCALAR1 = 5
@@ -52,26 +53,21 @@ class Agent:
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
-                if self.agentGroup == agent.agentGroup:
-                    if np.dot(rab, rab) < rmin1:
-                        sum1 += COULUMB_SCALAR1*(rab)/np.dot(rab,rab)
-                        #rmin1 = np.linalg.norm(rab)
-                if self.agentGroup != agent.agentGroup:
-                    if np.dot(rab, rab) < rmin2:
-                        sum2 += COULUMB_SCALAR2*(rab)/np.dot(rab,rab)
-                        #rmin2 = np.linalg.norm(rab)
-        return sum1 + sum2
+                rabdot = np.dot(rab, rab)
+                sameGroup = self.agentGroup == agent.agentGroup
+                if sameGroup and (rabdot < rmin1):
+                    sum1 += rab/rabdot
+                if not sameGroup and (rabdot < rmin2):
+                    sum2 += rab/rabdot
+        return COULUMB_SCALAR1*sum1 + COULUMB_SCALAR2*sum2
         
     def update(self, state, pedsim):
-        tmpPos = np.copy(self.position)
         self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt
         self.velocity += self.acceleration * state.dt
-        if(self.agentGroup == 0):
-            if(self.velocity[0] < 0):
-                self.velocity[0] = 0
-        if(self.agentGroup == 1):
-            if(self.velocity[0] > 0):
-                self.velocity[0] = 0
+        if(self.agentGroup == 0 and (self.velocity[0] < 0)):
+            self.velocity[0] = 0.01
+        if(self.agentGroup == 1 and (self.velocity[0] > 0)):
+            self.velocity[0] = -0.01
         self.position += self.velocity * state.dt
 
         # Check if agents reached goal
@@ -91,8 +87,7 @@ class Agent:
         if(not self.inGoal):
             if(self.agentGroup == 0):
                 self.inGoal = self.position[0] > state.goalLineRight
-                return self.inGoal
             else:
                 self.inGoal = self.position[0] < state.goalLineLeft
-                return self.inGoal
+            return self.inGoal;
         return 0
