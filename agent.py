@@ -67,7 +67,7 @@ class Agent:
         if(self.agentGroup == 0 and (self.velocity[0] < 0)):
             self.velocity[0] = 0.01
         if(self.agentGroup == 1 and (self.velocity[0] > 0)):
-            self.velocity[0] = 0.01
+            self.velocity[0] = -0.01
         self.position += self.velocity * state.dt
 
         # Check if agents reached goal
