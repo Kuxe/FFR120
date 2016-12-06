@@ -61,8 +61,12 @@ class Pedsim:
         variances = np.linspace(0.1,0.6, NUM_MEANS)
         means = np.linspace(0.8, 1.8, NUM_VARIANCES)
         efficiencies =  []
-        lastTime = 0        
 
+        allMeans = []
+        allVariances = []
+        lastTime = 0        
+        counter = 0
+        
         pedsimStates = []
         for i in range(len(means)):
             for j in range(len(variances)):
@@ -96,12 +100,15 @@ class Pedsim:
                 print(efficiency)
                 tmpEfficiencies.append(efficiency)
             
-            print('Total time spent: %.2f' % (time.perf_counter() - start),'  Approx time left: %.1f' %((lastTime + (time.perf_counter() - start)*len(pedsimStates))/2.0))
+            print('Total time spent: %.2f' % (time.perf_counter() - start),'  Approx time left: %.1f' %((lastTime + (time.perf_counter() - start)*(len(pedsimStates)-counter))/2.0))
             lastTime = (time.perf_counter() - start)*len(pedsimStates)
             efficiencies.append(np.mean(tmpEfficiencies))
+            allMeans.append(state.mean)
+            allVariances.append(state.variance)
+            counter += 1
             
-            
-        self.saveDataToFile(means,variances,efficiencies)
+        print(np.shape(means),np.shape(variances),np.shape(efficiencies))
+        self.saveDataToFile(allMeans,allVariances,efficiencies)
         
     def saveRunData(self, state):
         for agent in state.agents:
@@ -115,6 +122,7 @@ class Pedsim:
         
     def saveDataToFile(self,means, variances, efficiencies):
         np.savetxt('text.txt',np.c_[means,variances,efficiencies])
+                   
         
         #TODO: Make a correct calculation of mean Discomfort -> DiscomfortLevel
         #tmpDiscomfortVector = []
