@@ -50,8 +50,8 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
         NUM_STATES = 100
-        variances = np.linspace(0.01, 1, NUM_STATES)
-        means = np.linspace(0.5, 2, NUM_STATES)
+        variances = np.linspace(0.2, 0.2, NUM_STATES)
+        means = np.linspace(0.5, 0.5, NUM_STATES)
         
         for state in [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]:          
             # If plotting is enabled, run simulation until user presses quit
@@ -62,14 +62,10 @@ class Pedsim:
                     if(self.visualizer.running):
                         self.simulate(state)
                     self.visualizer.visualize(state)
-
-                #TODO: Fix bug where succesive runs of simulation becomes slower and slower
                 print('Total time spent: %.2f' % (time.perf_counter() - start));
                     
             else:
                 # If user passed --disableplotting no window will exist so no quit button
-                # hence let simulation run for 10000 iterations
-                # TODO: Replace with reasonable stop condition (ie all agents reached goal)
                 start = time.perf_counter()
                 while state.numAgentsInGoal < self.numAgents:
                     self.simulate(state)
@@ -82,7 +78,7 @@ class Pedsim:
         data = {"time":pedsimState.time, 
                 "efficiencyLevels": pedsimState.efficiencyLevels}
         #TODO: Better name, currently used for testing only
-        pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimState.numAgents, pedsimState.time[-1], pedsimState.mean,pedsimState.variance),"wb"))
+        # pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimState.numAgents, pedsimState.time[-1], pedsimState.mean,pedsimState.variance),"wb"))
     
     def saveData(self, state):
         # Saving the mean Efficiency of all agents in all timesteps

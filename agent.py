@@ -9,10 +9,10 @@ class Agent:
     def __init__(self, initialPosition, initialVelocity, preferredVelocity, agentGroup):
         self.position = initialPosition
         self.position0 = np.copy(self.position)
-        self.velocity = initialVelocity
+        self.velocity = preferredVelocity
         self.acceleration = np.array([0, 0])
         self.preferredVelocity = preferredVelocity
-        self.relaxation = 0.01
+        self.relaxation = 0.02
         self.agentGroup = agentGroup
         self.inGoal = False
         
@@ -57,20 +57,21 @@ class Agent:
         sum1 = np.array([0.0, 0.0]);
         sum2 = np.array([0.0, 0.0]);
         sum = np.array([0.0, 0.0]);
-        rmin1 = 1000
-        rmin2 = 1000
+        rmin1 = 1
+        rmin2 = 1
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
                 if self.agentGroup == agent.agentGroup:
                     if np.linalg.norm(rab) < rmin1:
-                        sum1 = 5*(rab)/np.dot(rab,rab)
-                        rmin1 = np.linalg.norm(rab)
+                        sum1 += 5*(rab)/np.dot(rab,rab)
+                        #rmin1 = np.linalg.norm(rab)
                 if self.agentGroup != agent.agentGroup:
                     if np.linalg.norm(rab) < rmin2:
-                        sum2 = 10*(rab)/np.dot(rab,rab)
-                        rmin2 = np.linalg.norm(rab)
+                        sum2 += 10*(rab)/np.dot(rab,rab)
+                        #rmin2 = np.linalg.norm(rab)
         sum = sum1 + sum2
+        
                 #velCorr = (1-np.dot(self.velocity,agent.velocity)/(np.linalg.norm(agent.velocity)*np.linalg.norm(self.velocity)))
                 #vab = self.velocity - agent.velocity
                 #DO NOT REMOVE sum += 1.1*(rab / np.dot(rab,rab)) From merge conflict
@@ -101,6 +102,8 @@ class Agent:
             self.goal(state)
             if(self.inGoal):
                 self.position[0] = self.position0[0]
+                self.velocity = self.preferredVelocity
+                #self.position[1] = np.random.uniform(1,6)
                 self.inGoal = False
         else:
             state.numAgentsInGoal += self.goal(state)
