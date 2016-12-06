@@ -50,47 +50,54 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
         NUM_STATES = 100
+        NUMBER_OF_MEANS = 20
         variances = np.linspace(0.2, 0.2, NUM_STATES)
         means = np.linspace(0.5, 0.5, NUM_STATES)
+        efficiencies =  np.array([])
         
-        for state in [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]:          
+        pedsimStates = [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]
+        for state in pedsimStates:          
             # If plotting is enabled, run simulation until user presses quit
-            if(self.enablePlotting):
-                self.visualizer.clear()
-                start = time.perf_counter()
-                while not self.visualizer.terminate and state.numAgentsInGoal < self.numAgents:
-                    if(self.visualizer.running):
+            # TODO MASSIVE BUG MAY HAPPEN HERE
+            tmpEfficiencies = []
+            for i in range(NUMBER_OF_MEANS):
+                state.__init__(self.numAgents, self.dt, self.boundaryMap, state.mean, state.variance)
+                if(self.enablePlotting):
+                    self.visualizer.clear()
+                    start = time.perf_counter()
+                    while not self.visualizer.terminate and state.numAgentsInGoal < self.numAgents:
+                        if(self.visualizer.running):
+                            self.simulate(state)
+                        self.visualizer.visualize(state)
+                    print('Total time spent: %.2f' % (time.perf_counter() - start));
+                        
+                else:
+                    # If user passed --disableplotting no window will exist so no quit button
+                    start = time.perf_counter()
+                    while state.numAgentsInGoal < self.numAgents:
                         self.simulate(state)
-                    self.visualizer.visualize(state)
+                        self.saveRunData(state)
+                efficiency = self.saveData(state)
+                tmpEfficiencies.append(efficiency)
                 print('Total time spent: %.2f' % (time.perf_counter() - start));
-                    
-            else:
-                # If user passed --disableplotting no window will exist so no quit button
-                start = time.perf_counter()
-                while state.numAgentsInGoal < self.numAgents:
-                    self.simulate(state)
-                    self.saveData(state)
-                self.saveDataToFile(state)
-                print('Total time spent: %.2f' % (time.perf_counter() - start));
+            efficiencies.append(np.mean(tmpEfficiencies))
+            
+            
+        self.saveDataToFile(means,variances,efficiencies)
         
-                
-    def saveDataToFile(self, pedsimState):
-        data = {"time":pedsimState.time, 
-                "efficiencyLevels": pedsimState.efficiencyLevels}
-        #TODO: Better name, currently used for testing only
-        # pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimState.numAgents, pedsimState.time[-1], pedsimState.mean,pedsimState.variance),"wb"))
-    
-    def saveData(self, state):
-        # Saving the mean Efficiency of all agents in all timesteps
-        tmpEfficiencyArray= []
-        
+    def saveRunData(self, state):
         for agent in state.agents:
-            efficiencyLevel = np.linalg.norm(agent.preferredVelocity) / np.linalg.norm(agent.velocity)
-            efficiencyLevel = efficiencyLevel/self.numAgents
-            tmpEfficiencyArray.append(efficiencyLevel)
-
-        efficiencyLevel = np.sum(tmpEfficiencyArray)
-        state.efficiencyLevels.append(efficiencyLevel)
+            agent.pastSpeeds.append(np.linalg.norm(agent.velocity))
+            
+    def saveData(self, state):
+        efficiency = 0
+        for agent in state.agents:
+            efficiency += np.mean(agent.pastSpeeds) / np.linalg.norm(agent.preferredVelocity)  
+        efficiency = efficiency / self.numAgents
+        return efficiency
+        
+    def saveDataToFile(self,means, variances, sefficiencies):
+        np.savetxt('text.txt',np.c_[mean,variances,efficiencies])
         
         #TODO: Make a correct calculation of mean Discomfort -> DiscomfortLevel
         #tmpDiscomfortVector = []
