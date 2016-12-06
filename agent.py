@@ -34,7 +34,7 @@ class Agent:
         lowerBound = 0
         distanceToLower = abs(self.position[1] - lowerBound)
         distanceToHigher = abs(self.position[1] - upperBound)
-
+        
         if distanceToLower < distanceToHigher:
             return np.array([0.0, 1.0]) * (np.exp(0.7/distanceToLower) - 1)
         return np.array([0.0, -1.0]) * (np.exp(0.7/distanceToHigher) - 1)
@@ -61,7 +61,6 @@ class Agent:
         return COULUMB_SCALAR1*sum1 + COULUMB_SCALAR2*sum2
         
     def update(self, state, pedsim):
-        tmpPos = np.copy(self.position)
         self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt
         self.velocity += self.acceleration * state.dt
         if(self.agentGroup == 0 and (self.velocity[0] < 0)):
