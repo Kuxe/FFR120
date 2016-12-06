@@ -50,6 +50,7 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
         NUM_STATES = 100
+        AVG_NUM_GOALS_PER_AGENT = 10; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
         variances = np.linspace(0.2, 0.2, NUM_STATES)
         means = np.linspace(0.5, 0.5, NUM_STATES)
         
@@ -58,7 +59,7 @@ class Pedsim:
             if(self.enablePlotting):
                 self.visualizer.clear()
                 start = time.perf_counter()
-                while not self.visualizer.terminate and state.numAgentsInGoal < self.numAgents:
+                while not self.visualizer.terminate and state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                     if(self.visualizer.running):
                         self.simulate(state)
                     self.visualizer.visualize(state)
@@ -67,7 +68,7 @@ class Pedsim:
             else:
                 # If user passed --disableplotting no window will exist so no quit button
                 start = time.perf_counter()
-                while state.numAgentsInGoal < self.numAgents:
+                while state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                     self.simulate(state)
                     self.saveData(state)
                 self.saveDataToFile(state)

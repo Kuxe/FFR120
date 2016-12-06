@@ -99,7 +99,7 @@ class Agent:
 
         # Check if agents reached goal
         if(pedsim.continuous):
-            self.goal(state)
+            state.numAgentsInGoal += self.goal(state)
             if(self.inGoal):
                 self.position[0] = self.position0[0]
                 self.velocity = self.preferredVelocity
