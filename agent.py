@@ -85,8 +85,7 @@ class Agent:
         if(not self.inGoal):
             if(self.agentGroup == 0):
                 self.inGoal = self.position[0] > state.goalLineRight
-                return self.inGoal
             else:
                 self.inGoal = self.position[0] < state.goalLineLeft
-                return self.inGoal
+            return self.inGoal;
         return 0
