@@ -9,7 +9,7 @@ class Agent:
     def __init__(self, initialPosition, initialVelocity, preferredVelocity, agentGroup):
         self.position = initialPosition
         self.position0 = np.copy(self.position)
-        self.velocity = preferredVelocity
+        self.velocity = initialVelocity
         self.acceleration = np.array([0, 0])
         self.preferredVelocity = preferredVelocity
         self.relaxation = 0.02
