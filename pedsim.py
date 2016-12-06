@@ -49,7 +49,7 @@ class Pedsim:
     def run(self):
 
         #Generate data for use in each instance of pedsimstate
-        NUM_STATES = 100
+        NUM_STATES = 10
         AVG_NUM_GOALS_PER_AGENT = 10; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
         variances = np.linspace(0.1, 1, NUM_STATES)
         means = np.linspace(0.5, 2.5, NUM_STATES)
