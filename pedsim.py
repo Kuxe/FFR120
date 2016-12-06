@@ -74,8 +74,12 @@ class Pedsim:
                 while state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                     self.simulate(state)
                     self.saveData(state)
+                self.saveEfficiency(state)
+                self.saveDiscomfort(state)
                 self.saveDataToFile(state)
                 print('Total time spent: %.2f' % (time.perf_counter() - start));
+                print(state.efficiencyLevels);
+                print(state.discomfortLevels);
         
                 
     def saveDataToFile(self, pedsimState):
@@ -84,22 +88,53 @@ class Pedsim:
         #TODO: Better name, currently used for testing only
         # pickle.dump(data, open ('nAgent%i_time%i_mean%.2f_var%.2f.p'%(pedsimState.numAgents, pedsimState.time[-1], pedsimState.mean,pedsimState.variance),"wb"))
     
-    def saveData(self, state):
+    def saveEfficiency(self, state):
         # Saving the mean Efficiency of all agents in all timesteps
         tmpEfficiencyArray= []
         
         for agent in state.agents:
-            efficiencyLevel = np.linalg.norm(agent.preferredVelocity) / np.linalg.norm(agent.velocity)
+            velocitySum = 0;
+            for i in range(len(agent.velocityInTimeX)):
+                tmpVelocity = np.array([agent.velocityInTimeX[i], agent.velocityInTimeY[i]])
+                preferredDirection = agent.preferredVelocity/np.linalg.norm(agent.preferredVelocity)
+                velocitySum += np.dot(tmpVelocity,preferredDirection)
+            averageVelocity = velocitySum/len(agent.velocityInTimeX)
+            efficiencyLevel = averageVelocity /np.linalg.norm(agent.preferredVelocity)
             efficiencyLevel = efficiencyLevel/self.numAgents
             tmpEfficiencyArray.append(efficiencyLevel)
 
         efficiencyLevel = np.sum(tmpEfficiencyArray)
         state.efficiencyLevels.append(efficiencyLevel)
         
+    def saveDiscomfort(self, state):
+        
         #TODO: Make a correct calculation of mean Discomfort -> DiscomfortLevel
-        #tmpDiscomfortVector = []
-        #for agent in state.agents:
-        #    agentDiscomfortLevel = np.norm(agent.preferredVelocity)
+        tmpDiscomfortVector = []
+        for agent in state.agents:
+            velocitySum = 0;
+            velocitySquared = 0;
+            for i in range(len(agent.velocityInTimeX)):
+                tmpVelocity = np.linalg.norm(np.array([agent.velocityInTimeX[i], agent.velocityInTimeY[i]]))
+                velocitySum += tmpVelocity
+                velocitySquared += tmpVelocity**2
+            velocitySum = velocitySum/len(agent.velocityInTimeX)
+            velocitySquared = velocitySquared/len(agent.velocityInTimeX)
+            agentDiscomfortLevel = 1 - (velocitySum**2)/velocitySquared;
+            agentDiscomfortLevel = agentDiscomfortLevel/self.numAgents
+            tmpDiscomfortVector.append(agentDiscomfortLevel)
+        
+        discomfortLevel = np.sum(tmpDiscomfortVector)
+        state.discomfortLevels.append(discomfortLevel)
+        
+    def saveData(self, state):
+        
+        for agent in state.agents:
+            agentVelocityX = agent.velocity[0]
+            agentVelocityY = agent.velocity[1]
+            agent.velocityInTimeX.append(agentVelocityX)
+            agent.velocityInTimeY.append(agentVelocityY)
+        
+        
 
         
 def main():   

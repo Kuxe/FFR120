@@ -15,6 +15,8 @@ class Agent:
         self.relaxation = 0.02
         self.agentGroup = agentGroup
         self.inGoal = False
+        self.velocityInTimeX = []
+        self.velocityInTimeY = []
         
     # Behavioral force f_alpha(t) is the acceleration plus a fluctuation term
     def behavioral(self, agents, boundaries, attractors):

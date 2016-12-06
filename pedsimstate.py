@@ -36,6 +36,7 @@ class PedsimState:
         #TODO: Get better variablenames
         self.time = [0]
         self.efficiencyLevels = []
+        self.discomfortLevels = []
 
         self.agents = []
         self.dt = dt
