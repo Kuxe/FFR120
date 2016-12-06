@@ -8,6 +8,7 @@ warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 class Agent:    
     def __init__(self, initialPosition, initialVelocity, preferredVelocity, agentGroup):
         self.position = initialPosition
+        self.position0 = np.copy(self.position)
         self.velocity = initialVelocity
         self.acceleration = np.array([0, 0])
         self.preferredVelocity = preferredVelocity
@@ -88,15 +89,22 @@ class Agent:
         # TODO: Implement according to paper
         return np.array([0, 0])
         
-    def update(self, state):
-        tmpPos = np.copy(self.position);
-        self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt;
+    def update(self, state, pedsim):
+        tmpPos = np.copy(self.position)
+        self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt
         self.velocity += self.acceleration * state.dt
         self.position += self.velocity * state.dt
         state.totalDistanceTravelled += np.linalg.norm(self.position-tmpPos)
 
         # Check if agents reached goal
-        state.numAgentsInGoal += self.goal(state)
+        if(pedsim.continuous):
+            self.goal(state)
+            if(self.inGoal):
+                self.position[0] = self.position0[0]
+                self.inGoal = False
+        else:
+            state.numAgentsInGoal += self.goal(state)
+        
 
     # Method that returns 1 (true) if agent is at other side of goal line, otherwise 0 (false)
     def goal(self, state):

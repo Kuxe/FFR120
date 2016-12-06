@@ -13,7 +13,7 @@ import pickle
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state
 class Pedsim:   
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, continuous, boundaryMap):
         self.visualizer = None
 
         # If enablePlotting=False, do not plot at all. Dont even create a window.
@@ -23,9 +23,11 @@ class Pedsim:
         self.dt = None
         self.boundaryMap = None
         self.numAgents = None
+        self.continuous = None
         self.enablePlotting = enablePlotting
         self.numAgents = numAgents
         self.dt = dt
+        self.continuous = continuous
         self.boundaryMap = boundaryMap
         if(self.enablePlotting):
             self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, self.dt, enablePlotting, self.boundaryMap)
@@ -34,7 +36,7 @@ class Pedsim:
     def simulate(self, state):
         start = time.perf_counter()
         for agent in state.agents:
-            agent.update(state)
+            agent.update(state, self)
             # If user set dt via the -dt <deltatime> flag, use that. Otherwise use actual delta time as dt.                  
         if state.useFixedTimeStep:
             state.dt = state.fixedTimeStep
@@ -108,16 +110,17 @@ def main():
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
     parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
+    parser.add_argument("--continuous", help="Resets x-coordinate after goal", action='store_true')
     parser.add_argument("-map", help="Sets map", type = int, default = 1 )
     #paser.add_argument("--savedata", help="Save data from simulation", type=bool, default = false)
     args = parser.parse_args()
 
     # Instansiate and run model
-    bMap = Boundarymaps()
+    bMap = Boundarymap()
     boundaryMap = bMap.boundaryMap1()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting, boundaryMap)
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting, args.continuous, boundaryMap)
     pedsim.run()
 
 if __name__ == "__main__":
