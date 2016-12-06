@@ -53,15 +53,25 @@ class Agent:
     
     def repulsiveInteractions(self, agents):
         # Almost Coulomb potential, Q = 1 temporary?
+        sum1 = np.array([0.0, 0.0]);
+        sum2 = np.array([0.0, 0.0]);
         sum = np.array([0.0, 0.0]);
-        rmin = 1000
+        rmin1 = 1000
+        rmin2 = 1000
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
-                if np.linalg.norm(rab) < rmin:    
-                    vab = self.velocity - agent.velocity
-                    sum = 10*(1-np.dot(self.velocity,agent.velocity)/(np.linalg.norm(agent.velocity)*np.linalg.norm(self.velocity)))*(rab)/np.dot(rab,rab)
-                    rmin = np.linalg.norm(rab)
+                if self.agentGroup == agent.agentGroup:
+                    if np.linalg.norm(rab) < rmin1:
+                        sum1 = 5*(rab)/np.dot(rab,rab)
+                        rmin1 = np.linalg.norm(rab)
+                if self.agentGroup != agent.agentGroup:
+                    if np.linalg.norm(rab) < rmin2:
+                        sum2 = 10*(rab)/np.dot(rab,rab)
+                        rmin2 = np.linalg.norm(rab)
+        sum = sum1 + sum2
+                #velCorr = (1-np.dot(self.velocity,agent.velocity)/(np.linalg.norm(agent.velocity)*np.linalg.norm(self.velocity)))
+                #vab = self.velocity - agent.velocity
                 #DO NOT REMOVE sum += 1.1*(rab / np.dot(rab,rab)) From merge conflict
                 #if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) >= 3*np.pi/4:
                 #   if np.arccos(np.dot(self.velocity,rab)/(np.sqrt(np.dot(self.velocity,self.velocity))*np.sqrt(np.dot(rab,rab)))) <= 5*np.pi/4:
