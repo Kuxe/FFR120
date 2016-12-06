@@ -44,42 +44,48 @@ class Pedsim:
             state.dt = time.perf_counter() - start
 
         state.runningTimePerStep = time.perf_counter() - start
-        state.time.append(state.time[-1] + state.dt)
+        state.nTimesteps +=1
 
     def run(self):
 
         #Generate data for use in each instance of pedsimstate
-        NUM_STATES = 100
-        NUMBER_OF_MEANS = 20
-        variances = np.linspace(0.2, 0.2, NUM_STATES)
-        means = np.linspace(0.5, 0.5, NUM_STATES)
-        efficiencies =  np.array([])
+
+        NUM_STATES = 10 
+        AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
+        NUMBER_OF_MEANS = 1
+        variances = np.linspace(0.1, 1, NUM_STATES)
+        means = np.linspace(0.5, 2.5, NUM_STATES)
+        efficiencies =  []
         
         pedsimStates = [PedsimState(self.numAgents, self.dt, self.boundaryMap, means[stateIndex], variances[stateIndex]) for stateIndex in range(NUM_STATES)]
         for state in pedsimStates:          
             # If plotting is enabled, run simulation until user presses quit
             # TODO MASSIVE BUG MAY HAPPEN HERE
             tmpEfficiencies = []
+            tmpDiscomforts = []
             for i in range(NUMBER_OF_MEANS):
                 state.__init__(self.numAgents, self.dt, self.boundaryMap, state.mean, state.variance)
                 if(self.enablePlotting):
                     self.visualizer.clear()
                     start = time.perf_counter()
-                    while not self.visualizer.terminate and state.numAgentsInGoal < self.numAgents:
+                    while not self.visualizer.terminate and state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                         if(self.visualizer.running):
                             self.simulate(state)
+                            self.saveRunData(state)
                         self.visualizer.visualize(state)
-                    print('Total time spent: %.2f' % (time.perf_counter() - start));
-                        
+                    
+                            
                 else:
                     # If user passed --disableplotting no window will exist so no quit button
                     start = time.perf_counter()
-                    while state.numAgentsInGoal < self.numAgents:
+                    while state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                         self.simulate(state)
                         self.saveRunData(state)
                 efficiency = self.saveData(state)
+                print(efficiency)
                 tmpEfficiencies.append(efficiency)
-                print('Total time spent: %.2f' % (time.perf_counter() - start));
+
+            print('Total time spent: %.2f' % (time.perf_counter() - start));
             efficiencies.append(np.mean(tmpEfficiencies))
             
             
@@ -87,17 +93,16 @@ class Pedsim:
         
     def saveRunData(self, state):
         for agent in state.agents:
-            agent.pastSpeeds.append(np.linalg.norm(agent.velocity))
+            agent.cumSpeed += np.linalg.norm(agent.velocity)
             
     def saveData(self, state):
         efficiency = 0
         for agent in state.agents:
-            efficiency += np.mean(agent.pastSpeeds) / np.linalg.norm(agent.preferredVelocity)  
-        efficiency = efficiency / self.numAgents
-        return efficiency
+            efficiency += (agent.cumSpeed/state.nTimesteps) *(1.0/ np.linalg.norm(agent.preferredVelocity))
+        return efficiency/self.numAgents
         
-    def saveDataToFile(self,means, variances, sefficiencies):
-        np.savetxt('text.txt',np.c_[mean,variances,efficiencies])
+    def saveDataToFile(self,means, variances, efficiencies):
+        np.savetxt('text.txt',np.c_[means,variances,efficiencies])
         
         #TODO: Make a correct calculation of mean Discomfort -> DiscomfortLevel
         #tmpDiscomfortVector = []

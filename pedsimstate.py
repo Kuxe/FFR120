@@ -34,7 +34,7 @@ class PedsimState:
 
         #Variables to save data from..
         #TODO: Get better variablenames
-        self.time = [0]
+        self.nTimesteps = 0.0
         self.efficiencyLevels = []
 
         self.agents = []
@@ -53,23 +53,24 @@ class PedsimState:
         wallYEnd = bmshape[0]-1
         margin = 1
         side = 3
-
+        minimumSpeed = 0.01
+        
         self.goalLineRight = wallXEnd-margin-side
         self.goalLineLeft = wallXStart+margin+side
 
         numAgents1 = int(self.numAgents/2);
         agentsXs = np.random.uniform(wallXStart+margin, wallXStart+margin+side, numAgents1)
         agentsYs = np.random.uniform(wallYStart+margin, wallYEnd-margin, numAgents1)
-        preferredVelocityScalar = np.random.normal(mean, variance, numAgents1)
+        preferredSpeed = np.random.normal(mean, variance, numAgents1)
         for i in range(numAgents1):
-            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.array([1.0, 0.0]), max(0.001, preferredVelocityScalar[i])*np.array([1.0, 0.0]), 0))
+            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.maximum(minimumSpeed, preferredSpeed[i])*np.array([1.0, 0.0]), 0))
 
         numAgents2 = self.numAgents-int((self.numAgents/2))
         agentsXs = np.random.uniform(wallXEnd-margin-side, wallXEnd-margin, numAgents2)
         agentsYs = np.random.uniform(wallYStart+margin, wallYEnd-margin, numAgents2)
-        preferredVelocityScalar = np.random.normal(mean, variance, numAgents2)
+        preferredSpeed = np.random.normal(mean, variance, numAgents2)
         for i in range(numAgents2):
-            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.array([-1.0, 0.0]), max(0.001, preferredVelocityScalar[i])*np.array([-1.0, 0.0]), 1))
+            self.agents.append(Agent(np.array([agentsXs[i], agentsYs[i]]), np.maximum(minimumSpeed, preferredSpeed[i])*np.array([-1.0, 0.0]), 1))
 
         if(dt != 0.0):
             self.useFixedTimeStep = True
