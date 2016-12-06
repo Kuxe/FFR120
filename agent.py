@@ -52,12 +52,11 @@ class Agent:
             if(agent != self):
                 rab = self.position - agent.position
                 rabdot = np.dot(rab, rab)
-                rabquota = rab/rabdot
                 sameGroup = self.agentGroup == agent.agentGroup
                 if sameGroup and (rabdot < rmin1):
-                    sum1 += rabquota
+                    sum1 += rab/rabdot
                 if not sameGroup and (rabdot < rmin2):
-                    sum2 += rabquota
+                    sum2 += rab/rabdot
         return COULUMB_SCALAR1*sum1 + COULUMB_SCALAR2*sum2
         
     def update(self, state, pedsim):
