@@ -40,22 +40,23 @@ class Agent:
     
     def repulsiveInteractions(self, agents):
         # Almost Coulomb potential, Q = 1 temporary?
-        COULOMB_MULTIPLIER = 5
         sum1 = np.array([0.0, 0.0]);
         sum2 = np.array([0.0, 0.0]);
         sum = np.array([0.0, 0.0]);
-        rmin1 = 1
-        rmin2 = 1.5
+        rmin1 = 1**2 #Because comparison done with squared euclidean distance as opposed to euclidean distance (dot faster than norm)
+        rmin2 = 1.5**2
+        COULUMB_SCALAR1 = 5
+        COULUMB_SCALAR2 = 10
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
                 if self.agentGroup == agent.agentGroup:
-                    if np.linalg.norm(rab) < rmin1:
-                        sum1 += COULOMB_MULTIPLIER*(rab)/np.dot(rab,rab)
+                    if np.dot(rab, rab) < rmin1:
+                        sum1 += COULUMB_SCALAR1*(rab)/np.dot(rab,rab)
                         #rmin1 = np.linalg.norm(rab)
                 if self.agentGroup != agent.agentGroup:
-                    if np.linalg.norm(rab) < rmin2:
-                        sum2 += COULOMB_MULTIPLIER*(rab)/np.dot(rab,rab)
+                    if np.dot(rab, rab) < rmin2:
+                        sum2 += COULUMB_SCALAR2*(rab)/np.dot(rab,rab)
                         #rmin2 = np.linalg.norm(rab)
         return sum1 + sum2
         
