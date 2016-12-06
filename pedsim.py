@@ -53,12 +53,12 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
 
-        NUM_MEANS = 10
-        NUM_VARIANCES = 10
+        NUM_MEANS = 20
+        NUM_VARIANCES = 20
         AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
-        NUMBER_OF_MEANS = 1
+        NUMBER_OF_MEANS = 20
         
-        variances = np.linspace(0.1,0.6, NUM_MEANS)
+        variances = np.linspace(0.1, 0.6, NUM_MEANS)
         means = np.linspace(0.8, 1.8, NUM_VARIANCES)
         efficiencies =  []
 
@@ -72,7 +72,7 @@ class Pedsim:
             for j in range(len(variances)):
                 pedsimStates.append(PedsimState(self.numAgents, self.dt, self.boundaryMap, means[i], variances[j]))
                                 
-                                
+        numRuns = 0;          
         for state in pedsimStates:          
             # If plotting is enabled, run simulation until user presses quit
             # TODO MASSIVE BUG MAY HAPPEN HERE
@@ -97,9 +97,9 @@ class Pedsim:
                         self.simulate(state)
                         self.saveRunData(state)
                 efficiency = self.saveData(state)
-                print(efficiency)
+                print('%.2f percentage, Efficiency: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency))
+                numRuns += 1
                 tmpEfficiencies.append(efficiency)
-            
             print('Total time spent: %.2f' % (time.perf_counter() - start),'  Approx time left: %.1f' %((lastTime + (time.perf_counter() - start)*(len(pedsimStates)-counter))/2.0))
             lastTime = (time.perf_counter() - start)*len(pedsimStates)
             efficiencies.append(np.mean(tmpEfficiencies))
