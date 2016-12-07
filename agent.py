@@ -15,9 +15,8 @@ class Agent:
         self.relaxation = 0.02
         self.agentGroup = agentGroup
         self.inGoal = False
-        self.velocityInTimeX = []
-        self.velocityInTimeY = []
         self.cumSpeed = 0
+        self.cumSpeedSquared = 0
         self.preferredSpeed = np.linalg.norm(self.preferredVelocity)
         
     # Behavioral force f_alpha(t) is the acceleration plus a fluctuation term

@@ -55,12 +55,13 @@ class Pedsim:
 
         NUM_MEANS = 20
         NUM_VARIANCES = 20
-        AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
-        NUMBER_OF_MEANS = 20
+        AVG_NUM_GOALS_PER_AGENT = 10; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
+        NUMBER_OF_MEANS = 30
         
         variances = np.linspace(0.1, 0.6, NUM_MEANS)
         means = np.linspace(0.8, 1.8, NUM_VARIANCES)
         efficiencies =  []
+        discomforts = []
 
         allMeans = []
         allVariances = []
@@ -94,12 +95,14 @@ class Pedsim:
                     while state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                         self.simulate(state)
                         self.saveRunData(state)
-                efficiency = self.saveData(state)
+                [efficiency, discomfort] = self.saveData(state)
                 print('%.2f percentage, Efficiency: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency))
                 numRuns += 1
+                tmpDiscomforts.append(discomfort)
                 tmpEfficiencies.append(efficiency)
             print('Total time spent: %.2f' % (time.perf_counter() - start),'  Approx time left: %.1f' %((lastTime + (time.perf_counter() - start)*(len(pedsimStates)-counter))/2.0))
             lastTime = (time.perf_counter() - start)*len(pedsimStates)
+            discomforts.append(np.mean(tmpDiscomforts))
             efficiencies.append(np.mean(tmpEfficiencies))
             allMeans.append(state.mean)
             allVariances.append(state.variance)
@@ -111,12 +114,15 @@ class Pedsim:
     def saveRunData(self, state):
         for agent in state.agents:
             agent.cumSpeed += np.linalg.norm(agent.velocity)
+            agent.cumSpeedSquared += np.dot(agent.velocity,agent.velocity)
             
     def saveData(self, state):
         efficiency = 0
+        discomfort = 0
         for agent in state.agents:
             efficiency += (agent.cumSpeed/state.nTimesteps) *(1.0/ np.linalg.norm(agent.preferredVelocity))
-        return efficiency/self.numAgents
+            discomfort += (1 - ((agent.cumSpeed/state.nTimesteps)**2)/(agent.cumSpeedSquared/state.nTimesteps))
+        return efficiency/self.numAgents, discomfort/self.numAgents
         
     def saveDataToFile(self,means, variances, efficiencies):
         np.savetxt('text.txt',np.c_[means,variances,efficiencies])
@@ -158,7 +164,7 @@ class Pedsim:
         discomfortLevel = np.sum(tmpDiscomfortVector)
         state.discomfortLevels.append(discomfortLevel)
         
-    def saveData(self, state):
+    def saveDataOld(self, state):
         
         for agent in state.agents:
             agentVelocityX = agent.velocity[0]
