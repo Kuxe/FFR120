@@ -53,10 +53,8 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
 
-        NUM_MEANS = 20
-        NUM_VARIANCES = 20
-        AVG_NUM_GOALS_PER_AGENT = 10; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
-        NUMBER_OF_MEANS = 30
+        AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
+        NUMBER_OF_MEANS = 1
         
         variances = np.linspace(0.1, 0.6, NUM_MEANS)
         means = np.linspace(0.8, 1.8, NUM_VARIANCES)
@@ -96,7 +94,7 @@ class Pedsim:
                         self.simulate(state)
                         self.saveRunData(state)
                 [efficiency, discomfort] = self.saveData(state)
-                print('%.2f percentage, Efficiency: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency))
+                print('%.2f percentage, Efficiency: %f, Discomfort: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency,discomfort))
                 numRuns += 1
                 tmpDiscomforts.append(discomfort)
                 tmpEfficiencies.append(efficiency)
@@ -108,8 +106,7 @@ class Pedsim:
             allVariances.append(state.variance)
             counter += 1
             
-        print(np.shape(means),np.shape(variances),np.shape(efficiencies))
-        self.saveDataToFile(allMeans,allVariances,efficiencies)
+        self.saveDataToFile(allMeans,allVariances,efficiencies,discomforts)
         
     def saveRunData(self, state):
         for agent in state.agents:
@@ -124,8 +121,8 @@ class Pedsim:
             discomfort += (1 - ((agent.cumSpeed/state.nTimesteps)**2)/(agent.cumSpeedSquared/state.nTimesteps))
         return efficiency/self.numAgents, discomfort/self.numAgents
         
-    def saveDataToFile(self,means, variances, efficiencies):
-        np.savetxt('text.txt',np.c_[means,variances,efficiencies])
+    def saveDataToFile(self,means, variances, efficiencies,discomforts):
+        np.savetxt('text.txt',np.c_[means,variances,efficiencies,discomforts])
     
     def saveEfficiency(self, state):
         tmpEfficiencyArray= []

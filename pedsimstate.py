@@ -33,7 +33,6 @@ class PedsimState:
         self.totalDistanceTravelled = 0
 
         #Variables to save data from..
-        #TODO: Get better variablenames
         self.nTimesteps = 0.0
         self.efficiencyLevels = []
         self.discomfortLevels = []
