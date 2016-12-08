@@ -53,6 +53,8 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
 
+        NUM_MEANS = 2
+        NUM_VARIANCES = 3
         AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
         NUMBER_OF_MEANS = 1
         
