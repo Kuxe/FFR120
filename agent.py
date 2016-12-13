@@ -49,8 +49,9 @@ class Agent:
         sum2 = np.array([0.0, 0.0]);
         rmin1 = 1**2 #Because comparison done with squared euclidean distance as opposed to euclidean distance (dot faster than norm)
         rmin2 = 1.5**2
-        COULUMB_SCALAR1 = 10
-        COULUMB_SCALAR2 = 15
+        COULUMB_SCALAR1 = 10.0
+        COULUMB_SCALAR2 = 15.0
+
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
@@ -61,6 +62,16 @@ class Agent:
                 if not sameGroup and (rabdot < rmin2):
                     sum2 += rab/rabdot
         return COULUMB_SCALAR1*sum1 + COULUMB_SCALAR2*sum2
+
+        # DO NOT REMOVE! THIS IS _MUCH_FASTER FOR NUM_AGENTS >= 200
+        #g = self.agentGroup != np.matrix([agent.agentGroup for agent in agents if agent != self]).T
+        #rab = -np.matrix([agent.position for agent in agents if agent != self]) + self.position;
+        #rabdot = np.square(rab).sum(1);
+        #COULUMB_SCALAR1 *= (1.0-g)
+        #COULUMB_SCALAR1[rabdot > rmin1] = 0.0
+        #COULUMB_SCALAR2 *= g
+        #COULUMB_SCALAR2[rabdot > rmin2] = 0.0
+        #return ((rab / rabdot).T * (COULUMB_SCALAR2 + COULUMB_SCALAR1)).A1
         
     def update(self, state, pedsim):
         self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors)
