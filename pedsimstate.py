@@ -53,7 +53,7 @@ class PedsimState:
         wallYEnd = bmshape[0]-1
         margin = 1
         side = 3
-        minimumSpeed = 0.01
+        minimumSpeed = 0.2
         
         self.goalLineRight = wallXEnd-margin-side
         self.goalLineLeft = wallXStart+margin+side

@@ -35,10 +35,11 @@ class Agent:
         lowerBound = 0
         distanceToLower = abs(self.position[1] - lowerBound)
         distanceToHigher = abs(self.position[1] - upperBound)
+        WALL_SCALAR = 1.5
         
         if distanceToLower < distanceToHigher:
-            return np.array([0.0, 1.0]) * (np.exp(0.7/distanceToLower) - 1)
-        return np.array([0.0, -1.0]) * (np.exp(0.7/distanceToHigher) - 1)
+            return np.array([0.0, 1.0]) * (np.exp(WALL_SCALAR/distanceToLower) - 1)
+        return np.array([0.0, -1.0]) * (np.exp(WALL_SCALAR/distanceToHigher) - 1)
 
     
     def repulsiveInteractions(self, agents):
@@ -47,8 +48,8 @@ class Agent:
         sum2 = np.array([0.0, 0.0]);
         rmin1 = 1**2 #Because comparison done with squared euclidean distance as opposed to euclidean distance (dot faster than norm)
         rmin2 = 1.5**2
-        COULUMB_SCALAR1 = 5
-        COULUMB_SCALAR2 = 10
+        COULUMB_SCALAR1 = 10
+        COULUMB_SCALAR2 = 15
         for agent in agents:
             if(agent != self):
                 rab = self.position - agent.position
@@ -70,7 +71,7 @@ class Agent:
 
         # Cap magnitude of vector to 12.4m/s (Usain Bolt 2009 Berlin)
         velocityMagnitude = np.linalg.norm(self.velocity)
-        MAX_SPEED = 12.4;
+        MAX_SPEED = 10;
         if(velocityMagnitude > MAX_SPEED):
             self.velocity = self.velocity / velocityMagnitude * MAX_SPEED;
 
