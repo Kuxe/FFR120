@@ -11,13 +11,13 @@ from Boundarymap import *
 import pickle
 
 # PROTIP: 
-# python -m cProfile -s cumtime pedsim.py --disableplotting --continuous -n 2 -dt 0.07 > profile.txt
+# python -m cProfile -s cumtime pedsim.py --disableplotting -n 100 -mu 1 -sigma 1 -dt 0.03 > profile.txt
 # dt < 0.03 for no oscillation
 
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state
 class Pedsim:   
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, continuous, boundaryMap):
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, mus, sigmas, enablePlotting, continuous, boundaryMap):
         self.visualizer = None
 
         # If enablePlotting=False, do not plot at all. Dont even create a window.
@@ -31,6 +31,8 @@ class Pedsim:
         self.enablePlotting = enablePlotting
         self.numAgents = numAgents
         self.dt = dt
+        self.mus = mus
+        self.sigmas = sigmas
         self.continuous = continuous
         self.boundaryMap = boundaryMap
         if(self.enablePlotting):
@@ -54,8 +56,8 @@ class Pedsim:
 
         #Generate data for use in each instance of pedsimstate
 
-        NUM_MEANS = 2
-        NUM_VARIANCES = 3
+        NUM_MEANS = self.mus
+        NUM_VARIANCES = self.sigmas
         AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
         NUMBER_OF_MEANS = 1
         
@@ -181,6 +183,8 @@ def main():
     parser.add_argument("-n", help="Sets the number of agents", type=int, default=100)
     parser.add_argument("-r", help="Sets the plot refresh rate", type=int, default=16)
     parser.add_argument("-dt", help="Sets delta time to fixed rate", type=float, default=0.0)
+    parser.add_argument("-mu", help="Sets number of mu's to loop over", type=float, default=10.0)
+    parser.add_argument("-sigma", help="Sets number of sigmas's to loop over", type=float, default=10.0)
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
     parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
@@ -194,7 +198,7 @@ def main():
     boundaryMap = bMap.boundaryMap1()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, not args.disableplotting, args.continuous, boundaryMap)
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, args.mu, args.sigma, not args.disableplotting, args.continuous, boundaryMap)
     pedsim.run()
 
 if __name__ == "__main__":
