@@ -16,6 +16,7 @@ class Agent:
         self.agentGroup = agentGroup
         self.inGoal = False
         self.cumSpeed = 0
+        self.cumSpeedPreferred = 0
         self.cumSpeedSquared = 0
         self.preferredSpeed = np.linalg.norm(self.preferredVelocity)
         

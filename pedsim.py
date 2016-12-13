@@ -113,15 +113,16 @@ class Pedsim:
         
     def saveRunData(self, state):
         for agent in state.agents:
-            agent.cumSpeed += np.dot(agent.velocity,agent.preferredVelocity)
+            agent.cumSpeed += np.linalg.norm(agent.velocity)
+            agent.cumSpeedPreferred += np.dot(agent.velocity,agent.preferredVelocity)
             agent.cumSpeedSquared += np.dot(agent.velocity,agent.velocity)
             
     def saveData(self, state):
         efficiency = 0
         discomfort = 0
         for agent in state.agents:
-            efficiency += (agent.cumSpeed/state.nTimesteps) *(1.0/agent.preferredSpeed)
-            discomfort += (1 - ((agent.cumSpeed/state.nTimesteps)**2)/(agent.cumSpeedSquared/state.nTimesteps))
+            efficiency += (agent.cumSpeedPreferred/state.nTimesteps) *(1.0/agent.preferredSpeed)
+            discomfort += 1 - ((agent.cumSpeed/state.nTimesteps)**2)/(agent.cumSpeedSquared/state.nTimesteps)
         return efficiency/self.numAgents, discomfort/self.numAgents
         
     def saveDataToFile(self,means, variances, efficiencies,discomforts):
