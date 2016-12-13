@@ -6,9 +6,13 @@ from pyqtgraph.Qt import QtGui, QtCore
 import warnings
 warnings.filterwarnings("ignore", category=np.VisibleDeprecationWarning)
 
+pg.setConfigOption('background', 'w')
+pg.setConfigOption('foreground', 'k')
+pg.setConfigOption('antialias', False)
+
 # Class which visualizes a PedsimState using the python library pyqtgraph
 class PedsimVisualizer:
-    def __init__(self, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, boundaryMap):
+    def __init__(self, plotdirections, plotaccelerations, plotRefreshRate, dt, enablePlotting, scientificplot, boundaryMap):
         self.app = None
         self.w = None
         self.runBtn = None
@@ -47,7 +51,11 @@ class PedsimVisualizer:
             
         # Create a PlotWidget which shows position of agents as circles via scatterplotting
         self.agentPlot = pg.PlotWidget()
-        self.agentPlot.showGrid(True, True, 0.3)
+        if scientificplot:
+            self.agentPlot.showGrid(True, True, 0.3)
+        else:
+            self.agentPlot.hideAxis('left')
+            self.agentPlot.hideAxis('bottom')
         boundaryMapMaxLen = np.max(np.shape(boundaryMap));
         self.agentPlot.setXRange(0, boundaryMapMaxLen)
         self.agentPlot.setYRange(-boundaryMapMaxLen/2, boundaryMapMaxLen/2)
@@ -71,6 +79,8 @@ class PedsimVisualizer:
         self.layout.addWidget(self.agentPlot, 0, 1, 1, 1)  # plot goes on right side, spanning 3 rows
         #self.layout.addWidget(self.dataPlot, 0, 2, 1, 1)
 
+        self.wallPen = pg.mkPen(color=(100, 100, 100), width=3)
+
         self.w.show()
             
         self.plotdirections = plotdirections
@@ -93,16 +103,11 @@ class PedsimVisualizer:
         self.app.processEvents() # Such as moving the window, pressing buttons etc
         # Update plot, 60fps
         if(self.running and self.enablePlotting and (time.perf_counter() - self.plotTime)*1000 > self.plotRefreshRate):
-            
-            x = [i for j in range(len(state.boundaryMap[:,0])) \
-                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[len(state.boundaryMap[:,0])-1-j,i] == True]
-            y = [j for j in range(len(state.boundaryMap[:,0])) \
-                          for i in range(len(state.boundaryMap[0,:])) if state.boundaryMap[len(state.boundaryMap[:,0])-1-j,i] == True]                              
-            self.agentPlot.plot(x, y, pen=None, symbol='s', clear=True)
-
             xs = [agent.position[0] for agent in state.agents]
             ys = [agent.position[1] for agent in state.agents]
-            self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=False)
+            self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=True)
+            self.agentPlot.addLine(y=0, pen=self.wallPen)
+            self.agentPlot.addLine(y=np.size(state.boundaryMap, 0)-1, pen=self.wallPen)
 
             #Dummyvariable could really be a tuple or anything that we want to plot
             self.data3[self.ptr3] = state.totalDistanceTravelled
