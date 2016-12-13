@@ -67,6 +67,13 @@ class Agent:
             self.velocity[0] = 0.01
         if(self.agentGroup == 1 and (self.velocity[0] > 0)):
             self.velocity[0] = -0.01
+
+        # Cap magnitude of vector to 12.4m/s (Usain Bolt 2009 Berlin)
+        velocityMagnitude = np.linalg.norm(self.velocity)
+        MAX_SPEED = 12.4;
+        if(velocityMagnitude > MAX_SPEED):
+            self.velocity = self.velocity / velocityMagnitude * MAX_SPEED;
+
         self.position += self.velocity * state.dt
 
         # Check if agents reached goal
