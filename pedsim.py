@@ -12,6 +12,7 @@ import pickle
 
 # PROTIP: 
 # python -m cProfile -s cumtime pedsim.py --disableplotting --continuous -n 2 -dt 0.07 > profile.txt
+# dt < 0.03 for no oscillation
 
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state

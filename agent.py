@@ -61,7 +61,7 @@ class Agent:
         return COULUMB_SCALAR1*sum1 + COULUMB_SCALAR2*sum2
         
     def update(self, state, pedsim):
-        self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors) * state.dt
+        self.acceleration = self.behavioral(state.agents, state.boundaryMap, state.attractors)
         self.velocity += self.acceleration * state.dt
         if(self.agentGroup == 0 and (self.velocity[0] < 0)):
             self.velocity[0] = 0.01
