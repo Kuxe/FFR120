@@ -78,7 +78,8 @@ class Agent:
         self.position += self.velocity * state.dt
 
         # Confine agents within boundary
-        self.position[1] = np.clip(self.position[1], 0, np.size(state.boundaryMap, 0))
+        WALL_WIDTH = 0.1;
+        self.position[1] = np.clip(self.position[1], 0+WALL_WIDTH, np.size(state.boundaryMap, 0)-1-WALL_WIDTH)
 
         # Check if agents reached goal
         if(pedsim.continuous):
