@@ -76,6 +76,9 @@ class Agent:
 
         self.position += self.velocity * state.dt
 
+        # Confine agents within boundary
+        self.position[1] = np.clip(self.position[1], 0, np.size(state.boundaryMap, 0))
+
         # Check if agents reached goal
         if(pedsim.continuous):
             state.numAgentsInGoal += self.goal(state)
