@@ -61,7 +61,7 @@ class Agent:
                     sum1 += rab/rabdot
                 if not sameGroup and (rabdot < rmin2):
                     sum2 += rab/rabdot
-        return COULUMB_SCALAR1*sum1 + COULUMB_SCALAR2*sum2
+        return COULUMB_SCALAR1*sum1 + np.multiply(COULUMB_SCALAR2*sum2, np.array([1.0, 2.0]))
 
         # DO NOT REMOVE! THIS IS _MUCH_FASTER FOR NUM_AGENTS >= 200
         #g = self.agentGroup != np.matrix([agent.agentGroup for agent in agents if agent != self]).T

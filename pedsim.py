@@ -58,11 +58,11 @@ class Pedsim:
 
         NUM_MEANS = self.mus
         NUM_VARIANCES = self.sigmas
-        AVG_NUM_GOALS_PER_AGENT = 3; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
-        NUMBER_OF_MEANS = 1
+        AVG_NUM_GOALS_PER_AGENT = 2; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
+        NUMBER_OF_MEANS = 3
         
-        means = np.linspace(0.8, 1.8, NUM_MEANS)
-        variances = np.linspace(0.1, 0.6, NUM_VARIANCES)
+        means = np.linspace(0.2, 4.0, NUM_MEANS)
+        variances = np.linspace(0.2, 2.0, NUM_VARIANCES)
         efficiencies =  []
         discomforts = []
 
