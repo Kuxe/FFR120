@@ -17,7 +17,7 @@ import pickle
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state
 class Pedsim:   
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, mus, sigmas, enablePlotting, continuous, useGrid, enableSaving, boundaryMap):
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, mus, sigmas, enablePlotting, continuous, useGrid, enableSaving, numAverages, boundaryMap):
         self.visualizer = None
 
         # If enablePlotting=False, do not plot at all. Dont even create a window.
@@ -33,6 +33,7 @@ class Pedsim:
         self.dt = dt
         self.mus = mus
         self.sigmas = sigmas
+        self.numAverages = numAverages
         self.continuous = continuous
         self.enableSaving = enableSaving;
         self.boundaryMap = boundaryMap
@@ -60,7 +61,7 @@ class Pedsim:
         NUM_MEANS = self.mus
         NUM_VARIANCES = self.sigmas
         AVG_NUM_GOALS_PER_AGENT = 2; #Each agent should on average enter goal 10 times, so 20 agents => 200 goals should be measured before terminating
-        NUMBER_OF_MEANS = 3
+        NUMBER_OF_AVERAGES = self.numAverages
         
         means = np.linspace(0.2, 4.0, NUM_MEANS)
         variances = np.linspace(0.2, 2.0, NUM_VARIANCES)
@@ -83,7 +84,7 @@ class Pedsim:
             # TODO MASSIVE BUG MAY HAPPEN HERE
             tmpEfficiencies = []
             tmpDiscomforts = []
-            for i in range(NUMBER_OF_MEANS):
+            for i in range(NUMBER_OF_AVERAGES):
                 state.__init__(self.numAgents, self.dt, self.boundaryMap, state.mean, state.variance)
                 if(self.enablePlotting):
                     self.visualizer.clear()
@@ -103,7 +104,7 @@ class Pedsim:
                             self.saveRunData(state)
                 if(self.enableSaving):
                     [efficiency, discomfort] = self.saveData(state)
-                    print('%.2f percentage, Efficiency: %f, Discomfort: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency,discomfort))
+                    print('%.2f percentage, Efficiency: %f, Discomfort: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_AVERAGES), efficiency,discomfort))
                 numRuns += 1
                 if(self.enableSaving):
                     tmpDiscomforts.append(discomfort)
@@ -192,6 +193,7 @@ def main():
     parser.add_argument("-dt", help="Sets delta time to fixed rate", type=float, default=0.01)
     parser.add_argument("-mu", help="Sets number of mu's to loop over", type=float, default=10.0)
     parser.add_argument("-sigma", help="Sets number of sigmas's to loop over", type=float, default=10.0)
+    parser.add_argument("-averages", help="Set number of averages", type=int, default=1)
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')
     parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
@@ -207,7 +209,7 @@ def main():
     boundaryMap = bMap.boundaryMap1()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, args.mu, args.sigma, not args.disableplotting, args.continuous, args.scientificplot, args.save, boundaryMap)
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, args.mu, args.sigma, not args.disableplotting, args.continuous, args.scientificplot, args.save, args.averages, boundaryMap)
     pedsim.run()
 
 if __name__ == "__main__":
