@@ -47,7 +47,7 @@ class Agent:
         # Almost Coulomb potential, Q = 1 temporary?
         sum1 = np.array([0.0, 0.0]);
         sum2 = np.array([0.0, 0.0]);
-        rmin1 = 1.0**2 #Because comparison done with squared euclidean distance as opposed to euclidean distance (dot faster than norm)
+        rmin1 = 2.0**2 #Because comparison done with squared euclidean distance as opposed to euclidean distance (dot faster than norm)
         rmin2 = 1.5**2
         COULUMB_SCALAR1 = 10.0
         COULUMB_SCALAR2 = 15.0

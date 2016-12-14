@@ -180,9 +180,9 @@ class Pedsim:
         
 def main():   
     parser = argparse.ArgumentParser()
-    parser.add_argument("-n", help="Sets the number of agents", type=int, default=100)
+    parser.add_argument("-n", help="Sets the number of agents", type=int, default=60)
     parser.add_argument("-r", help="Sets the plot refresh rate", type=int, default=16)
-    parser.add_argument("-dt", help="Sets delta time to fixed rate", type=float, default=0.0)
+    parser.add_argument("-dt", help="Sets delta time to fixed rate", type=float, default=0.01)
     parser.add_argument("-mu", help="Sets number of mu's to loop over", type=float, default=10.0)
     parser.add_argument("-sigma", help="Sets number of sigmas's to loop over", type=float, default=10.0)
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
