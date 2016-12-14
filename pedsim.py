@@ -124,6 +124,7 @@ class Pedsim:
     def saveRunData(self, state):
         for agent in state.agents:
             agent.cumSpeed += np.linalg.norm(agent.velocity)
+            agent.cumVelocity += agent.velocity
             agent.cumSpeedPreferred += np.dot(agent.velocity,agent.preferredVelocity)/agent.preferredSpeed
             agent.cumSpeedSquared += np.dot(agent.velocity,agent.velocity)
             
@@ -132,7 +133,7 @@ class Pedsim:
         discomfort = 0.0
         for agent in state.agents:
             efficiency += (agent.cumSpeedPreferred/state.nTimesteps) *(1.0/agent.preferredSpeed)
-            discomfort += 1 - ((agent.cumSpeed/state.nTimesteps)**2)/(agent.cumSpeedSquared/state.nTimesteps)
+            discomfort += 1 - np.dot(agent.cumVelocity/state.nTimesteps, agent.cumVelocity/state.nTimesteps)/(agent.cumSpeedSquared/state.nTimesteps)
         return efficiency/self.numAgents, discomfort/self.numAgents
         
     def saveDataToFile(self,means, variances, efficiencies,discomforts):
@@ -191,8 +192,8 @@ def main():
     parser.add_argument("-n", help="Sets the number of agents", type=int, default=60)
     parser.add_argument("-r", help="Sets the plot refresh rate", type=int, default=16)
     parser.add_argument("-dt", help="Sets delta time to fixed rate", type=float, default=0.01)
-    parser.add_argument("-mu", help="Sets number of mu's to loop over", type=float, default=10.0)
-    parser.add_argument("-sigma", help="Sets number of sigmas's to loop over", type=float, default=10.0)
+    parser.add_argument("-mu", help="Sets number of mu's to loop over", type=float, default=3.0)
+    parser.add_argument("-sigma", help="Sets number of sigmas's to loop over", type=float, default=3.0)
     parser.add_argument("-averages", help="Set number of averages", type=int, default=1)
     parser.add_argument("--direction", help="Plot directions of agents", action='store_true')
     parser.add_argument("--acceleration", help="Plot accelerations of agents", action='store_true')

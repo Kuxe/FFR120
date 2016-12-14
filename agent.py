@@ -11,10 +11,11 @@ class Agent:
         self.position0 = np.copy(self.position)
         self.preferredVelocity = preferredVelocity
         self.velocity = np.copy(self.preferredVelocity)
-        self.acceleration = np.array([0, 0])
+        self.acceleration = np.array([0.0, 0.0])
         self.relaxation = 0.02
         self.agentGroup = agentGroup
         self.inGoal = False
+        self.cumVelocity = np.array([0.0, 0.0])
         self.cumSpeed = 0
         self.cumSpeedPreferred = 0
         self.cumSpeedSquared = 0
@@ -39,8 +40,8 @@ class Agent:
         WALL_SCALAR = 1.5
         
         if distanceToLower < distanceToHigher:
-            return np.array([0.0, 1.0]) * (np.exp(WALL_SCALAR/distanceToLower) - 1)
-        return np.array([0.0, -1.0]) * (np.exp(WALL_SCALAR/distanceToHigher) - 1)
+            return np.array([0.0, 1.0]) * (np.exp(WALL_SCALAR/distanceToLower) - 1.0)
+        return np.array([0.0, -1.0]) * (np.exp(WALL_SCALAR/distanceToHigher) - 1.0)
 
     
     def repulsiveInteractions(self, agents):
@@ -86,7 +87,7 @@ class Agent:
 
         # Cap magnitude of vector to 12.4m/s (Usain Bolt 2009 Berlin)
         velocityMagnitude = np.linalg.norm(self.velocity)
-        MAX_SPEED = 10;
+        MAX_SPEED = 10.0;
         if(velocityMagnitude > MAX_SPEED):
             self.velocity = self.velocity / velocityMagnitude * MAX_SPEED;
 
