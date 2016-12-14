@@ -17,7 +17,7 @@ import pickle
 # The Pedestrian simulator Pedsim have PedsimState(s) which Pedsim can update
 # and a visualizer which can visualize the state
 class Pedsim:   
-    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, mus, sigmas, enablePlotting, continuous, useGrid, boundaryMap):
+    def __init__(self, numAgents, plotdirections, plotaccelerations, plotRefreshRate, dt, mus, sigmas, enablePlotting, continuous, useGrid, enableSaving, boundaryMap):
         self.visualizer = None
 
         # If enablePlotting=False, do not plot at all. Dont even create a window.
@@ -34,6 +34,7 @@ class Pedsim:
         self.mus = mus
         self.sigmas = sigmas
         self.continuous = continuous
+        self.enableSaving = enableSaving;
         self.boundaryMap = boundaryMap
         if(self.enablePlotting):
             self.visualizer = PedsimVisualizer(plotdirections, plotaccelerations, plotRefreshRate, self.dt, enablePlotting, useGrid, self.boundaryMap)
@@ -90,28 +91,34 @@ class Pedsim:
                     while not self.visualizer.terminate and state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents* AVG_NUM_GOALS_PER_AGENT):
                         if(self.visualizer.running):
                             self.simulate(state)
-                            self.saveRunData(state)
+                            if(self.enableSaving):
+                                self.saveRunData(state)
                         self.visualizer.visualize(state)            
                 else:
                     # If user passed --disableplotting no window will exist so no quit button
                     start = time.perf_counter()
                     while state.numAgentsInGoal < (self.numAgents if not self.continuous else self.numAgents*AVG_NUM_GOALS_PER_AGENT):
                         self.simulate(state)
-                        self.saveRunData(state)
-                [efficiency, discomfort] = self.saveData(state)
-                print('%.2f percentage, Efficiency: %f, Discomfort: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency,discomfort))
+                        if(self.enableSaving):
+                            self.saveRunData(state)
+                if(self.enableSaving):
+                    [efficiency, discomfort] = self.saveData(state)
+                    print('%.2f percentage, Efficiency: %f, Discomfort: %f' % (100.0*numRuns / (len(pedsimStates)*NUMBER_OF_MEANS), efficiency,discomfort))
                 numRuns += 1
-                tmpDiscomforts.append(discomfort)
-                tmpEfficiencies.append(efficiency)
+                if(self.enableSaving):
+                    tmpDiscomforts.append(discomfort)
+                    tmpEfficiencies.append(efficiency)
             print('Total time spent: %.2f' % (time.perf_counter() - start),'  Approx time left: %.1f' %((lastTime + (time.perf_counter() - start)*(len(pedsimStates)-counter))/2.0))
-            lastTime = (time.perf_counter() - start)*len(pedsimStates)
-            discomforts.append(np.mean(tmpDiscomforts))
-            efficiencies.append(np.mean(tmpEfficiencies))
-            allMeans.append(state.mean)
-            allVariances.append(state.variance)
-            counter += 1
+            if(self.enableSaving):
+                lastTime = (time.perf_counter() - start)*len(pedsimStates)
+                discomforts.append(np.mean(tmpDiscomforts))
+                efficiencies.append(np.mean(tmpEfficiencies))
+                allMeans.append(state.mean)
+                allVariances.append(state.variance)
+                counter += 1
             
-        self.saveDataToFile(allMeans,allVariances,efficiencies,discomforts)
+        if(self.enableSaving):
+            self.saveDataToFile(allMeans,allVariances,efficiencies,discomforts)
         
     def saveRunData(self, state):
         for agent in state.agents:
@@ -190,6 +197,7 @@ def main():
     parser.add_argument("--disableplotting", help="Disables plotting", action='store_true')
     parser.add_argument("--continuous", help="Resets x-coordinate after goal", action='store_true')
     parser.add_argument("--scientificplot", help="True if plot should have grid lines and axes", action='store_true')
+    parser.add_argument("--save", help="Enable saving measures to file", action='store_true');
     parser.add_argument("-map", help="Sets map", type = int, default = 1 )
     #paser.add_argument("--savedata", help="Save data from simulation", type=bool, default = false)
     args = parser.parse_args()
@@ -199,7 +207,7 @@ def main():
     boundaryMap = bMap.boundaryMap1()
     
     # Instansiate and run model
-    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, args.mu, args.sigma, not args.disableplotting, args.continuous, args.scientificplot, boundaryMap)
+    pedsim = Pedsim(args.n, args.direction, args.acceleration, args.r, args.dt, args.mu, args.sigma, not args.disableplotting, args.continuous, args.scientificplot, args.save, boundaryMap)
     pedsim.run()
 
 if __name__ == "__main__":
