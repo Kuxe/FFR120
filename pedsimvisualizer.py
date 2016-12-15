@@ -105,7 +105,7 @@ class PedsimVisualizer:
         if(self.running and self.enablePlotting and (time.perf_counter() - self.plotTime)*1000 > self.plotRefreshRate):
             xs = [agent.position[0] for agent in state.agents]
             ys = [agent.position[1] for agent in state.agents]
-            self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=True)
+            self.agentPlot.plot(xs, ys, pen=pg.mkPen(None), symbol='o', symbolSize=0.6, pxMode=False, clear=True)
             self.agentPlot.addLine(y=0, pen=self.wallPen)
             self.agentPlot.addLine(y=np.size(state.boundaryMap, 0)-1, pen=self.wallPen)
 
