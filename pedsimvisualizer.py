@@ -81,6 +81,7 @@ class PedsimVisualizer:
 
         self.wallPen = pg.mkPen(color=(100, 100, 100), width=3)
 
+        
         self.w.show()
             
         self.plotdirections = plotdirections
@@ -105,7 +106,12 @@ class PedsimVisualizer:
         if(self.running and self.enablePlotting and (time.perf_counter() - self.plotTime)*1000 > self.plotRefreshRate):
             xs = [agent.position[0] for agent in state.agents]
             ys = [agent.position[1] for agent in state.agents]
-            self.agentPlot.plot(xs, ys, pen=None, symbol='o', clear=True)
+
+            half = int(len(xs)/2)
+            
+            self.agentPlot.plot(xs[1:half], ys[1:half], pen= None,symbol='o', clear=True,symbolBrush=(255,0,0,255))
+            self.agentPlot.plot(xs[half:-1], ys[half:-1], pen=None, symbol='o',clear=False,symbolBrush=(0,0,255,255))
+            
             self.agentPlot.addLine(y=0, pen=self.wallPen)
             self.agentPlot.addLine(y=np.size(state.boundaryMap, 0)-1, pen=self.wallPen)
 
